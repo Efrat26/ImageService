@@ -1,4 +1,4 @@
-﻿namespace ImageService
+﻿namespace ImageService1
 {
     partial class ImageService
     {

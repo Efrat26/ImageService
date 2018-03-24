@@ -13,7 +13,7 @@ namespace ImageService.Server
     {
         #region Members
         private IImageController m_controller;
-        private ImageService.ImageService.Logging.ILoggingService m_logging;
+        private ImageService.Logging.ILoggingService m_logging;
         #endregion
 
         #region Properties

@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
-namespace ImageService
+namespace ImageService1
 {
     public partial class ImageService : ServiceBase
     {

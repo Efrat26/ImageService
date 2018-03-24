@@ -5,7 +5,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImageService
+namespace ImageService1
 {
     static class Program
     {
