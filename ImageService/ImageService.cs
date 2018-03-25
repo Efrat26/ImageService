@@ -47,7 +47,36 @@ namespace ImageService1
 
         public ImageService(string[] args)
         {
-            InitializeComponent();
+           
+        }
+
+        protected override void OnStart(string[] args)
+        {
+            //register to the logging message
+           // logging.MessageRecieved += OnMsg ;
+         
+        }
+
+        protected override void OnStop()
+        {
+            
+        }
+       
+        protected override void OnContinue()
+        {
+            
+        }
+        public void OnMsg(String msg)
+         {
+            this.eventLog1.WriteEntry(msg);
+         }
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
+    }
+}
+
+/*
+  InitializeComponent();
             string eventSourceName = "MySource";
             string logName = "MyNewLog";
             if (args.Count() > 0)
@@ -70,13 +99,7 @@ namespace ImageService1
             this.m_imageServer = new ImageServer();
             //initialize logging
             this.logging = new LoggingService();
-        }
-
-        protected override void OnStart(string[] args)
-        {
-            //register to the logging message
-           // logging.MessageRecieved += OnMsg ;
-            eventLog1.WriteEntry("In OnStart");
+               eventLog1.WriteEntry("In OnStart");
             // Update the service state to Start Pending.  
             ServiceStatus serviceStatus = new ServiceStatus();
             serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
@@ -91,26 +114,15 @@ namespace ImageService1
             // Update the service state to Running.  
             serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
-        }
-
-        protected override void OnStop()
-        {
-            eventLog1.WriteEntry("In onStop.");
-        }
-        public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
+             public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
         {
             // TODO: Insert monitoring activities here.  
             eventLog1.WriteEntry("Monitoring the System", EventLogEntryType.Information, eventId++);
         }
-        protected override void OnContinue()
-        {
-            eventLog1.WriteEntry("In OnContinue.");
-        }
-        public void OnMsg(String msg)
-         {
-            this.eventLog1.WriteEntry(msg);
-         }
-        [DllImport("advapi32.dll", SetLastError = true)]
-        private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
-    }
-}
+
+
+    eventLog1.WriteEntry("In onStop.");
+
+    eventLog1.WriteEntry("In OnContinue.");
+
+            */
