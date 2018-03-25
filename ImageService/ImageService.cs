@@ -10,12 +10,13 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using ImageService.Server;
 using ImageService.ImageService.Logging;
+using ImageService.ImageService.Logging.Modal;
 
 namespace ImageService1
 {
     public partial class ImageService : ServiceBase
     {
-        private int eventId = 1;
+     
         public enum ServiceState
         {
             SERVICE_STOPPED = 0x00000001,
@@ -49,12 +50,17 @@ namespace ImageService1
         {
            
         }
+        public void OnMsg(object sender, MessageRecievedEventArgs e)
+        {
 
+        }
         protected override void OnStart(string[] args)
         {
+            //create server and logger
+            this.m_imageServer = new ImageServer();
+            this.logging = new LoggingService();
             //register to the logging message
-           // logging.MessageRecieved += OnMsg ;
-         
+            logging.MessageRecieved += OnMsg;
         }
 
         protected override void OnStop()
@@ -64,12 +70,9 @@ namespace ImageService1
        
         protected override void OnContinue()
         {
-            
+
         }
-        public void OnMsg(String msg)
-         {
-            this.eventLog1.WriteEntry(msg);
-         }
+        
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
     }
@@ -125,4 +128,9 @@ namespace ImageService1
 
     eventLog1.WriteEntry("In OnContinue.");
 
+
+       private int eventId = 1;
+
+
+    this.eventLog1.WriteEntry(msg);
             */

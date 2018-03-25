@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace ImageService.ImageService.Logging.Modal
 {
-    class MessageTypeEnum
-    {
-    }
+    
+        public enum MessageTypeEnum : int
+        {
+            INFO,
+            WARNING,
+            FAIL
+        }
+    //class MessageTypeEnum
+    //{
+    //}
 }

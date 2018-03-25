@@ -6,9 +6,15 @@ using System.Threading.Tasks;
 
 namespace ImageService.ImageService.Logging.Modal
 {
-    class MessageRecievedEventArgs : EventArgs
+    public class MessageRecievedEventArgs : EventArgs
     {
-     
+        public MessageTypeEnum Status { get; set; }
+        public string Message { get; set; }        public MessageRecievedEventArgs(string msg, MessageTypeEnum t)
+        {
+            Message = msg;
+            Status = t;
+        }
+
 
     }
 }

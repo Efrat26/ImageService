@@ -10,9 +10,11 @@ namespace ImageService.ImageService.Logging
     class LoggingService : ILoggingService
     {
         public event EventHandler<MessageRecievedEventArgs> MessageRecieved;
+        string msg;
+        MessageTypeEnum t;
         public void Log(string message, MessageTypeEnum type)
         {
-
-        }
+            MessageRecieved?.Invoke(this, new MessageRecievedEventArgs(msg,t));
+        }
     }
 }
