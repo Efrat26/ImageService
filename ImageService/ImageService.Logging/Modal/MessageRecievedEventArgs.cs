@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace ImageService.ImageService.Logging.Modal
 {
-    class MessageRecievedEventArgs
+    class MessageRecievedEventArgs : EventArgs
     {
+     
+
     }
 }

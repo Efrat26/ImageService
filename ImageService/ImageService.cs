@@ -8,6 +8,8 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using ImageService.Server;
+using ImageService.ImageService.Logging;
 
 namespace ImageService1
 {
@@ -36,6 +38,13 @@ namespace ImageService1
             public int dwCheckPoint;
             public int dwWaitHint;
         };
+
+        private ImageServer m_imageServer;          // The Image Server
+        private ILoggingService logging;
+        // private IImageServiceModal modal;
+        // private IImageController controller;
+
+
         public ImageService(string[] args)
         {
             InitializeComponent();
@@ -56,10 +65,17 @@ namespace ImageService1
             }
             eventLog1.Source = eventSourceName;
             eventLog1.Log = logName;
+
+            //initialize the server
+            this.m_imageServer = new ImageServer();
+            //initialize logging
+            this.logging = new LoggingService();
         }
 
         protected override void OnStart(string[] args)
         {
+            //register to the logging message
+           // logging.MessageRecieved += OnMsg ;
             eventLog1.WriteEntry("In OnStart");
             // Update the service state to Start Pending.  
             ServiceStatus serviceStatus = new ServiceStatus();
@@ -90,6 +106,10 @@ namespace ImageService1
         {
             eventLog1.WriteEntry("In OnContinue.");
         }
+        public void OnMsg(String msg)
+         {
+            this.eventLog1.WriteEntry(msg);
+         }
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
     }
