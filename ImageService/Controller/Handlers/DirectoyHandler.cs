@@ -45,9 +45,15 @@ namespace ImageService.Controller.Handlers
                 else
                 {
                     string res = this.m_controller.ExecuteCommand(e.CommandID, e.Args, out bool result);
-                }
-
-
+                    if (res == "error")
+                    {
+                        this.m_logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+                    }
+                    else
+                    {
+                        this.m_logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                    }
+                    }
             }
         }
 
