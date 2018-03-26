@@ -52,6 +52,7 @@ namespace ImageService1
         }
         public void OnMsg(object sender, MessageRecievedEventArgs e)
         {
+            this.eventLog1.WriteEntry(e.Message + " " + e.Status);
 
         }
         protected override void OnStart(string[] args)

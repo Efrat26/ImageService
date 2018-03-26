@@ -17,6 +17,11 @@ namespace ImageService.Modal
             result = true;
             return null;
         }
+        public string MoveFile(string path, out bool result)
+        {
+            result = true;
+            return null;
+        }
 
         #endregion
     }
