@@ -1,10 +1,10 @@
-﻿using ImageService.Modal;
+﻿using ImageService.Commands;
+using ImageService.Modal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace ImageService.Controller
 {
@@ -17,17 +17,30 @@ namespace ImageService.Controller
         public ImageController(IImageServiceModal modal)
         {
             // Storing the Modal Of The System
-            m_modal = modal;                   
+            m_modal = modal;
             commands = new Dictionary<int, ICommand>()
             {
                 // For Now will contain NEW_FILE_COMMAND
+                { 0, new NewFileCommand(this.m_modal)},
+                { 1, new CloseCommand(this.m_modal)}
             };
         }
         public string ExecuteCommand(int commandID, string[] args, out bool resultSuccesful)
         {
-            // Write Code Here
-            resultSuccesful = true;
-            return null;
+            bool result;
+            //this.commands[commandID].Execute(args, out result);
+            Task<bool> t = new Task<bool>(() =>
+            { this.commands[commandID].Execute(args, out result);return result; });
+            t.Start();
+            resultSuccesful = t.Result;
+            if (resultSuccesful)
+            {
+                return "success";
+            }
+            else
+            {
+                return "error";
+            }
         }
     }
 }
