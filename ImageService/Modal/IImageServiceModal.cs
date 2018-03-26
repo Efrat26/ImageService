@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ImageService.Modal
 {
-    interface IImageServiceModal
+    public interface IImageServiceModal
     {
         /// <summary>
         /// The Function Addes A file to the system

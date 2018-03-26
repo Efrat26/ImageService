@@ -58,8 +58,8 @@ namespace ImageService1
         protected override void OnStart(string[] args)
         {
             //create server and logger
-            this.m_imageServer = new ImageServer();
             this.logging = new LoggingService();
+            this.m_imageServer = new ImageServer(null, this.logging);
             //register to the logging message
             logging.MessageRecieved += OnMsg;
         }

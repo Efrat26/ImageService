@@ -1,7 +1,9 @@
 ﻿using ImageService.Controller;
 using ImageService.Controller.Handlers;
+using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.ImageService.Logging;
 using ImageService.ImageService.Logging.Modal;
+using ImageService.Modal;
 using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
@@ -27,21 +29,28 @@ namespace ImageService.Server
             //thr logger of the service
             this.m_logging = l;
             //create image model
-            this.m_controller = new ImageController();
+            this.m_controller = new ImageController(new ImageServiceModal());
             //create the handler and sign the onClose method to the event
-            this.m_handler = new DirectoyHandler(PathToFolderToListen, this.m_controller);
-            this.m_handler.DirectoryClose += this.OnClose;
-            //register the handler to the event of command recieved 
-            this.CommandRecieved += this.m_handler.OnCommand;
+            if (PathToFolderToListen != null){
+                this.AddPathToListen(PathToFolderToListen);
+            }
         
         }
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {
-            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs(0, null, e.DirectoryPath));
+            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand, null, e.DirectoryPath));
             this.m_logging.Log(e.Message, MessageTypeEnum.INFO);
             //remove the methods that signed to the events
             this.CommandRecieved -= ((IDirectoryHandler)sender).OnCommand;
             ((IDirectoryHandler)sender).DirectoryClose -= this.OnClose;
+        }
+        public void AddPathToListen(string path)
+        {
+            //create the handler and sign the onClose method to the event
+            this.m_handler = new DirectoyHandler(path, this.m_controller);
+            this.m_handler.DirectoryClose += this.OnClose;
+            //register the handler to the event of command recieved 
+            this.CommandRecieved += this.m_handler.OnCommand;
         }
     }
 }

@@ -30,7 +30,8 @@ namespace ImageService.Controller.Handlers
         }
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {
-
+            bool result;
+            this.m_controller.ExecuteCommand(e.CommandID, e.Args,out result);
         }
         // Implement Here!
     }

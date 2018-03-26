@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ImageService.Modal
 {
-    class ImageServiceModal : IImageServiceModal
+    public class ImageServiceModal : IImageServiceModal
     {
         #region Members
         private string m_OutputFolder;            // The Output Folder
