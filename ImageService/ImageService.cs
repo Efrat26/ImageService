@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using ImageService.Server;
 using ImageService.ImageService.Logging;
 using ImageService.ImageService.Logging.Modal;
+using System.Configuration;
 
 namespace ImageService1
 {
@@ -46,9 +47,18 @@ namespace ImageService1
         // private IImageController controller;
 
 
-        public ImageService(string[] args)
+        public ImageService()
         {
-           
+            InitializeComponent();
+            string eventSourceName = ConfigurationManager.AppSettings.Get("ImageServiceSource");
+            string logName = ConfigurationManager.AppSettings.Get("ImageServiceLog");
+            eventLog1 = new System.Diagnostics.EventLog();
+            if (!System.Diagnostics.EventLog.SourceExists(eventSourceName))
+            {
+                System.Diagnostics.EventLog.CreateEventSource(eventSourceName, logName);
+            }
+            eventLog1.Source = eventSourceName;
+            eventLog1.Log = logName;
         }
         public void OnMsg(object sender, MessageRecievedEventArgs e)
         {

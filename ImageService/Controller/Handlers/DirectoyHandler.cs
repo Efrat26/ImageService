@@ -27,6 +27,7 @@ namespace ImageService.Controller.Handlers
             this.m_logging = l;
             //create new file system watcher to monitor image files
             this.m_dirWatcher = new FileSystemWatcher(m_path, "*.jpg,*.png,*.gif,*.bmp");
+            this.m_dirWatcher.Created += this.OnNewFile;
         }
         public string ExecuteCommand(int commandID, string[] args, out bool result)
         {
@@ -48,6 +49,11 @@ namespace ImageService.Controller.Handlers
 
 
             }
+        }
+
+        public void OnNewFile(object sender, EventArgs e)
+        {
+            this.m_controller.ExecuteCommand((int)CommandEnum.NewFileCommand, null, out bool res);
         }
     }
 }

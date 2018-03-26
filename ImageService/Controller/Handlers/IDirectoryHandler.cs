@@ -15,5 +15,7 @@ namespace ImageService.Controller.Handlers
         string ExecuteCommand(int commandID, string[] args, out bool result);
 
         void OnCommand(object sender, CommandRecievedEventArgs e);
+        //on creation of file method
+        void OnNewFile(object sender, EventArgs e);
     }
 }
