@@ -1,4 +1,5 @@
-﻿using ImageService.ImageService.Logging;
+﻿using ImageService.ImageService.Infrastructure.Enums;
+using ImageService.ImageService.Logging;
 using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
@@ -30,9 +31,20 @@ namespace ImageService.Controller.Handlers
         }
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {
-            bool result;
-            this.m_controller.ExecuteCommand(e.CommandID, e.Args,out result);
+            if (e.RequestDirPath == this.m_path)
+            {
+                if (e.CommandID == (int)CommandEnum.CloseCommand)
+                {
+                    this.m_dirWatcher.Dispose();
+                    this.DirectoryClose?.Invoke(this, new DirectoryCloseEventArgs(this.m_path, "directory closed"));
+                }
+                else
+                {
+                    string res = this.m_controller.ExecuteCommand(e.CommandID, e.Args, out bool result);
+                }
+
+
+            }
         }
-        // Implement Here!
     }
 }
