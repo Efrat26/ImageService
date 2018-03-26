@@ -31,7 +31,19 @@ namespace ImageService.Controller.Handlers
         }
         public string ExecuteCommand(int commandID, string[] args, out bool result)
         {
-            throw new NotImplementedException();
+           string resVal =  m_controller.ExecuteCommand(commandID, args, out bool res);
+            if (resVal == "success")
+            {
+                result = true;
+                this.m_logging.Log(commandID + " " + resVal, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+
+            }
+            else
+            {
+                result = false;
+                this.m_logging.Log(commandID + " " + resVal, ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+            }
+            return resVal;
         }
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {

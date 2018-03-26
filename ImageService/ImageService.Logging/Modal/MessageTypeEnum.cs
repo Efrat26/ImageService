@@ -13,7 +13,4 @@ namespace ImageService.ImageService.Logging.Modal
             WARNING,
             FAIL
         }
-    //class MessageTypeEnum
-    //{
-    //}
 }
