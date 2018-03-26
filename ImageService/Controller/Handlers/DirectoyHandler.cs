@@ -20,10 +20,13 @@ namespace ImageService.Controller.Handlers
         #endregion
         // The Event That Notifies that the Directory is being closed
         public event EventHandler<DirectoryCloseEventArgs> DirectoryClose;
-        public DirectoyHandler(string path, IImageController m)
+        public DirectoyHandler(string path, IImageController m, ILoggingService l)
         {
             this.m_path = path;
             this.m_controller = m;
+            this.m_logging = l;
+            //create new file system watcher to monitor image files
+            this.m_dirWatcher = new FileSystemWatcher(m_path, "*.jpg,*.png,*.gif,*.bmp");
         }
         public string ExecuteCommand(int commandID, string[] args, out bool result)
         {

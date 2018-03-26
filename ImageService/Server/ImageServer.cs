@@ -47,7 +47,7 @@ namespace ImageService.Server
         public void AddPathToListen(string path)
         {
             //create the handler and sign the onClose method to the event
-            this.m_handler = new DirectoyHandler(path, this.m_controller);
+            this.m_handler = new DirectoyHandler(path, this.m_controller, this.m_logging);
             this.m_handler.DirectoryClose += this.OnClose;
             //register the handler to the event of command recieved 
             this.CommandRecieved += this.m_handler.OnCommand;
