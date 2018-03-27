@@ -18,6 +18,8 @@ namespace ImageService1
     public partial class ImageService : ServiceBase
     {
         private int eventId = 1;
+        private ILoggingService log;
+        private IServer server;
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
         public enum ServiceState
@@ -46,15 +48,10 @@ namespace ImageService1
         {
             InitializeComponent();
             string eventSourceName = "MySource";
+            //ConfigurationSettings.AppSettings.Get("SourceName");
             string logName = "MyNewLog";
-            if (args.Count() > 0)
-            {
-                eventSourceName = args[0];
-            }
-            if (args.Count() > 1)
-            {
-                logName = args[1];
-            }
+            //ConfigurationSettings.AppSettings.Get("LogName"); 
+
             eventLog1 = new System.Diagnostics.EventLog();
             if (!System.Diagnostics.EventLog.SourceExists(eventSourceName))
             {
@@ -86,6 +83,9 @@ namespace ImageService1
             // Update the service state to Running.  
             serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
+            //create logger and server
+            this.log = new LoggingService();
+            this.server = new ImageServer(this.log);
         }
 
         protected override void OnStop()

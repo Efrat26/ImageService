@@ -7,13 +7,14 @@ using ImageService.Modal;
 using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageService.Server
 {
-    class ImageServer
+    class ImageServer : IServer
     {
         #region Members
         private IImageController m_controller;
@@ -24,17 +25,18 @@ namespace ImageService.Server
         // The event that notifies about a new Command being recieved
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;          
         #endregion
-        public ImageServer(string PathToFolderToListen, ILoggingService l)
+        public ImageServer(ILoggingService l)
         {
             //thr logger of the service
             this.m_logging = l;
             //create image model
             this.m_controller = new ImageController(new ImageServiceModal());
             //create the handler and sign the onClose method to the event
-            if (PathToFolderToListen != null){
-                this.AddPathToListen(PathToFolderToListen);
-            }
-        
+            string folderToListen = ConfigurationManager.AppSettings.Get("Handler");
+            string[] folders = folderToListen.Split(';');
+            Console.WriteLine("folder before parsing are:  {0}", folderToListen);
+
+
         }
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {

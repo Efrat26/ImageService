@@ -18,7 +18,14 @@ namespace ImageService.Modal
         public ImageServiceModal()
         {
             this.m_OutputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
-            this.m_thumbnailSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ThumbnailSize"));
+            try
+            {
+                this.m_thumbnailSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ThumbnailSize"));
+            } catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
         }
         public string AddFile(string path, out bool result)
         {
