@@ -17,7 +17,9 @@ namespace ImageService1
 {
     public partial class ImageService : ServiceBase
     {
-     
+        private int eventId = 1;
+        [DllImport("advapi32.dll", SetLastError = true)]
+        private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
         public enum ServiceState
         {
             SERVICE_STOPPED = 0x00000001,
@@ -40,57 +42,9 @@ namespace ImageService1
             public int dwCheckPoint;
             public int dwWaitHint;
         };
-
-        private ImageServer m_imageServer;          // The Image Server
-        private ILoggingService logging;
-        // private IImageServiceModal modal;
-        // private IImageController controller;
-
-
-        public ImageService()
+        public ImageService(string[] args)
         {
             InitializeComponent();
-            string eventSourceName = ConfigurationManager.AppSettings.Get("ImageServiceSource");
-            string logName = ConfigurationManager.AppSettings.Get("ImageServiceLog");
-            eventLog1 = new System.Diagnostics.EventLog();
-            if (!System.Diagnostics.EventLog.SourceExists(eventSourceName))
-            {
-                System.Diagnostics.EventLog.CreateEventSource(eventSourceName, logName);
-            }
-            eventLog1.Source = eventSourceName;
-            eventLog1.Log = logName;
-        }
-        public void OnMsg(object sender, MessageRecievedEventArgs e)
-        {
-            this.eventLog1.WriteEntry(e.Message + " " + e.Status);
-
-        }
-        protected override void OnStart(string[] args)
-        {
-            //create server and logger
-            this.logging = new LoggingService();
-            this.m_imageServer = new ImageServer(null, this.logging);
-            //register to the logging message
-            logging.MessageRecieved += OnMsg;
-        }
-
-        protected override void OnStop()
-        {
-            
-        }
-       
-        protected override void OnContinue()
-        {
-
-        }
-        
-        [DllImport("advapi32.dll", SetLastError = true)]
-        private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
-    }
-}
-
-/*
-  InitializeComponent();
             string eventSourceName = "MySource";
             string logName = "MyNewLog";
             if (args.Count() > 0)
@@ -108,40 +62,39 @@ namespace ImageService1
             }
             eventLog1.Source = eventSourceName;
             eventLog1.Log = logName;
-
-            //initialize the server
-            this.m_imageServer = new ImageServer();
-            //initialize logging
-            this.logging = new LoggingService();
-               eventLog1.WriteEntry("In OnStart");
-            // Update the service state to Start Pending.  
-            ServiceStatus serviceStatus = new ServiceStatus();
-            serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
-            serviceStatus.dwWaitHint = 100000;
-            SetServiceStatus(this.ServiceHandle, ref serviceStatus);
+        }
+        public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
+        {
+            // TODO: Insert monitoring activities here.  
+            eventLog1.WriteEntry("Monitoring the System", EventLogEntryType.Information, eventId++);
             // Set up a timer to trigger every minute.  
             System.Timers.Timer timer = new System.Timers.Timer();
             timer.Interval = 60000; // 60 seconds  
             timer.Elapsed += new System.Timers.ElapsedEventHandler(this.OnTimer);
             timer.Start();
+        }
+        protected override void OnStart(string[] args)
+        {
+            System.Diagnostics.Debugger.Launch();
+            eventLog1.WriteEntry("In OnStart");
+            // Update the service state to Start Pending.  
+            ServiceStatus serviceStatus = new ServiceStatus();
+            serviceStatus.dwCurrentState = ServiceState.SERVICE_START_PENDING;
+            serviceStatus.dwWaitHint = 100000;
+            SetServiceStatus(this.ServiceHandle, ref serviceStatus);
 
             // Update the service state to Running.  
             serviceStatus.dwCurrentState = ServiceState.SERVICE_RUNNING;
             SetServiceStatus(this.ServiceHandle, ref serviceStatus);
-             public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
-        {
-            // TODO: Insert monitoring activities here.  
-            eventLog1.WriteEntry("Monitoring the System", EventLogEntryType.Information, eventId++);
         }
 
-
-    eventLog1.WriteEntry("In onStop.");
-
-    eventLog1.WriteEntry("In OnContinue.");
-
-
-       private int eventId = 1;
-
-
-    this.eventLog1.WriteEntry(msg);
-            */
+        protected override void OnStop()
+        {
+            eventLog1.WriteEntry("In onStop.");
+        }
+        protected override void OnContinue()
+        {
+            eventLog1.WriteEntry("In OnContinue.");
+        }
+    }
+}

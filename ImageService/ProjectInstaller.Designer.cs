@@ -47,7 +47,7 @@ namespace ImageService
             this.serviceInstaller1.Description = "Image Service as part of ex1 in AP2";
             this.serviceInstaller1.DisplayName = "Image Service AP2";
             this.serviceInstaller1.ServiceName = "ImageService";
-            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Manual;
             this.serviceInstaller1.AfterInstall += new System.Configuration.Install.InstallEventHandler(this.serviceInstaller1_AfterInstall);
             // 
             // ProjectInstaller
