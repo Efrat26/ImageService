@@ -14,7 +14,7 @@ namespace ImageService.ImageService.Logging
         MessageTypeEnum t;
         public void Log(string message, MessageTypeEnum type)
         {
-            MessageRecieved?.Invoke(this, new MessageRecievedEventArgs(msg,t));
+            MessageRecieved?.Invoke(this, new MessageRecievedEventArgs(message, t));
         }
     }
 }

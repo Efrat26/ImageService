@@ -1,11 +1,13 @@
 ﻿using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.ImageService.Logging;
+using ImageService.ImageService.Logging.Modal;
 using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ImageService.Controller.Handlers
@@ -26,17 +28,37 @@ namespace ImageService.Controller.Handlers
             this.m_controller = m;
             this.m_logging = l;
             //create new file system watcher to monitor image files
-            this.m_dirWatcher = new FileSystemWatcher(m_path, "*.jpg,*.png,*.gif,*.bmp");
-            this.m_dirWatcher.Created += this.OnNewFile;
+            //
+            // this.m_dirWatcher = new FileSystemWatcher(m_path, "*.jpg");
+            this.m_dirWatcher = new FileSystemWatcher();
+            this.m_logging.Log("Hello frm handler", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            this.InitializeWatcher();
+        }
+        private void InitializeWatcher()
+        {
+            this.m_dirWatcher.Path = this.m_path;
+            this.m_dirWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
+           | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            //this.m_dirWatcher.NotifyFilter = NotifyFilters.CreationTime;
+            //"*,.jpg,*.png,*.gif,*.bmp"
+            this.m_dirWatcher.Filter = ".jpg";
+            //this.m_dirWatcher.Changed += new FileSystemEventHandler(OnNewFile);
+            this.m_dirWatcher.Changed += new FileSystemEventHandler(this.OnNewFile);
+            this.m_dirWatcher.Created += new FileSystemEventHandler(this.OnNewFile);
+            this.m_dirWatcher.Deleted += new FileSystemEventHandler(this.OnNewFile);
+            this.m_dirWatcher.Renamed += new RenamedEventHandler(this.OnNewFile);
+            this.m_dirWatcher.EnableRaisingEvents = true;
+            //this.m_dirWatcher.Created += this.OnNewFile;
+            this.m_logging.Log("in initialize watcher of handler", MessageTypeEnum.INFO);
         }
         public string ExecuteCommand(int commandID, string[] args, out bool result)
         {
-           string resVal =  m_controller.ExecuteCommand(commandID, args, out bool res);
+            this.m_logging.Log("in execute command of server", MessageTypeEnum.INFO);
+            string resVal =  m_controller.ExecuteCommand(commandID, args, out bool res);
             if (resVal == "success")
             {
                 result = true;
                 this.m_logging.Log(commandID + " " + resVal, ImageService.Logging.Modal.MessageTypeEnum.INFO);
-
             }
             else
             {
@@ -47,6 +69,7 @@ namespace ImageService.Controller.Handlers
         }
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {
+            this.m_logging.Log("in on command of handler", MessageTypeEnum.INFO);
             if (e.RequestDirPath == this.m_path)
             {
                 if (e.CommandID == (int)CommandEnum.CloseCommand)
@@ -69,9 +92,17 @@ namespace ImageService.Controller.Handlers
             }
         }
 
-        public void OnNewFile(object sender, EventArgs e)
+        public void OnNewFile(object sender, FileSystemEventArgs e)
         {
-            this.m_controller.ExecuteCommand((int)CommandEnum.NewFileCommand, null, out bool res);
+            // System.Diagnostics.Debugger.Launch();
+            //Console.ReadKey();
+            string[] filters = { "*.jpg", "*.png", "*.gif", "*.bmp"};
+            string strFileExt = Path.GetExtension(e.FullPath);
+            if (filters.Contains(strFileExt))
+            { 
+                this.m_logging.Log("in handler - event on new file reciveced for" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            }
+            //this.m_controller.ExecuteCommand((int)CommandEnum.NewFileCommand, null, out bool res);
         }
     }
 }

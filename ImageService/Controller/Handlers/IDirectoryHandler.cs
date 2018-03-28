@@ -1,6 +1,7 @@
 ﻿using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,6 @@ namespace ImageService.Controller.Handlers
 
         void OnCommand(object sender, CommandRecievedEventArgs e);
         //on creation of file method
-        void OnNewFile(object sender, EventArgs e);
+        void OnNewFile(object sender, FileSystemEventArgs e);
     }
 }
