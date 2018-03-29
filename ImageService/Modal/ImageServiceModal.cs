@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Drawing;
-
+using ImageService.ImageService.Infrastructure.Enums;
 namespace ImageService.Modal
 {
     public class ImageServiceModal : IImageServiceModal
@@ -53,7 +53,7 @@ namespace ImageService.Modal
                 System.Diagnostics.Debugger.Launch();
             string resultThumbnailCopy =
                 this.CreateThumbnailCopy(newPath + "\\\\" + fileName, fileName, year, month);
-               if (resultThumbnailCopy.Equals("success"))
+               if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
             {
                 result = true;
                 
@@ -72,7 +72,7 @@ namespace ImageService.Modal
             try
             {
                 System.IO.File.Move(source, dest);
-                res = "suucess";
+                res = ResultMessgeEnum.Success.ToString();
             }
             catch (Exception e)
             {
@@ -82,15 +82,6 @@ namespace ImageService.Modal
             }
             result = true;
             return res;
-        }
-        //create a copy in thumbnail
-        private bool CreateThumbnailCopy2(string path)
-        {
-            using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                fs.SetLength(this.m_thumbnailSize);
-                return true;
-            }
         }
         //create file int the folder
         private string CreateThumbnailCopy(string newPath, string fileName, int year, int month)
@@ -106,7 +97,7 @@ namespace ImageService.Modal
             {
                 return e.ToString();
             }
-            return "success";
+            return ResultMessgeEnum.Success.ToString();
         }
         //get the date image was created
         private static DateTime GetDateTakenFromImage(string path)

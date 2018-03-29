@@ -65,6 +65,7 @@
       <DependentUpon>ImageService.cs</DependentUpon>
     </Compile>
     <Compile Include="ImageService.Infrastructure\Enums\CommandEnum.cs" />
+    <Compile Include="ImageService.Infrastructure\Enums\ResultMessgeEnum.cs" />
     <Compile Include="ImageService.Logging\ILoggingService.cs" />
     <Compile Include="ImageService.Logging\LoggingService.cs" />
     <Compile Include="ImageService.Logging\Modal\MessageRecievedEventArgs.cs" />
