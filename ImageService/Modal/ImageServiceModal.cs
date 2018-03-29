@@ -52,7 +52,7 @@ namespace ImageService.Modal
         /// </returns>
         public string AddFile(string path, out bool result)
         {
-            
+            //System.Diagnostics.Debugger.Launch();
             DateTime d = GetDateTakenFromImage(path);
             int year = this.GetYearAsNumber(d);
             int month = this.GetMonthAsNumber(d);
@@ -60,6 +60,7 @@ namespace ImageService.Modal
             //creates the directory only if not exist
             System.IO.Directory.CreateDirectory(newPath);
             newPath = newPath + "\\\\" + month;
+            System.IO.Directory.CreateDirectory(newPath);
             string fileName = Path.GetFileName(path);
             //prepare the source and target string for the move file command
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
