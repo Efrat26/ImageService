@@ -39,52 +39,52 @@ namespace ImageService.Modal
             System.IO.Directory.CreateDirectory(newPath);//create only if not exist
             newPath = newPath + "\\\\" + month;
             string fileName = Path.GetFileName(path);
-            //newPath = newPath + '\\' + file;
 
 
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
             string destFile = System.IO.Path.Combine(newPath, fileName);
 
+            string res = this.MoveFile(sourceFile, destFile, out bool success);
+            if (!success)
+            {
+                result = false;
+                return res;
+            }
+                System.Diagnostics.Debugger.Launch();
+            string resultThumbnailCopy =
+                this.CreateThumbnailCopy(newPath + "\\\\" + fileName, fileName, year, month);
+               if (resultThumbnailCopy.Equals("success"))
+            {
+                result = true;
+                
+            }
+            else
+            {
+                result = false;
+            }
+            return resultThumbnailCopy; 
+        }
+        public string MoveFile(string source, string dest, out bool result)
+        {
             // To copy a file to another location and 
             // overwrite the destination file if it already exists.
             string res;
             try
             {
-                System.IO.File.Copy(sourceFile, destFile, true);
+                System.IO.File.Move(source, dest);
                 res = "suucess";
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 result = false;
                 return res = e.ToString();
-                
-            }
-                System.Diagnostics.Debugger.Launch();
-                try
-                {
-                    Image image = Image.FromFile(newPath + "\\\\" + fileName);
-                    Image thumb = image.GetThumbnailImage(this.m_thumbnailSize, this.m_thumbnailSize, () => false, IntPtr.Zero);
-                    string thubnail_path = this.m_thumbnailpath + "\\\\" + year + "\\\\" + month;
-                    System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
-                    thumb.Save(thubnail_path + "\\\\" + fileName);
-                    
-                } catch (Exception e)
-                {
-                result = false;
-                return res =e.ToString();
-                   
-                }
-            
-            result = true;
-            return res  = "success";
 
-        }
-        public string MoveFile(string path, out bool result)
-        {
+            }
             result = true;
-            return null;
+            return res;
         }
         //create a copy in thumbnail
-        private bool CreateThumbnailCopy(string path)
+        private bool CreateThumbnailCopy2(string path)
         {
             using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
             {
@@ -93,21 +93,20 @@ namespace ImageService.Modal
             }
         }
         //create file int the folder
-        private bool CreateFile(string path)
+        private string CreateThumbnailCopy(string newPath, string fileName, int year, int month)
         {
-            
-            if (!System.IO.File.Exists(path))
+            try
             {
-                using (System.IO.FileStream fs = System.IO.File.Create(path))
-                {
-                    for (byte i = 0; i < 100; i++)
-                    {
-                        fs.WriteByte(i);
-                    }
-                }
-                return true;
+                Image image = Image.FromFile(newPath);
+                Image thumb = image.GetThumbnailImage(this.m_thumbnailSize, this.m_thumbnailSize, () => false, IntPtr.Zero);
+                string thubnail_path = this.m_thumbnailpath + "\\\\" + year + "\\\\" + month;
+                System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
+                thumb.Save(thubnail_path + "\\\\" + fileName);
+            } catch (Exception e)
+            {
+                return e.ToString();
             }
-            return false;
+            return "success";
         }
         //get the date image was created
         private static DateTime GetDateTakenFromImage(string path)
