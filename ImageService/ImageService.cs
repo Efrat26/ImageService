@@ -89,36 +89,13 @@ namespace ImageService1
             this.log.MessageRecieved += OnMessage;
             this.server = new ImageServer(this.log);
             this.log.Log("Hello frm service", MessageTypeEnum.INFO);
-
-
-            ///added
-            ///
-            // Create a new FileSystemWatcher and set its properties.
-            FileSystemWatcher watcher = new FileSystemWatcher();
-            watcher.Path = "C:\\Users\\efiso\\OneDrive\\Pictures";
-            /* Watch for changes in LastAccess and LastWrite times, and
-               the renaming of files or directories. */
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-               | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            // Only watch text files.
-            watcher.Filter = "*.jpg";
-
-            // Add event handlers.
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.Created += new FileSystemEventHandler(OnChanged);
-            watcher.Deleted += new FileSystemEventHandler(OnChanged);
-            watcher.Renamed += new RenamedEventHandler(OnRenamed);
-
-            // Begin watching.
-            watcher.EnableRaisingEvents = true;
-            this.eventLog1.WriteEntry("after creating system watcher", EventLogEntryType.Information);
         }
         public void OnMessage(object sender, MessageRecievedEventArgs e)
         {
             Console.WriteLine(e.Message);
             string msg = e.Message + " " + e.Status;
-            this.eventLog1.WriteEntry(msg);
-           // System.Diagnostics.Debugger.Launch();
+            this.eventLog1.WriteEntry(msg); 
+            // System.Diagnostics.Debugger.Launch();
         }
         protected override void OnStop()
         {
@@ -127,21 +104,6 @@ namespace ImageService1
         protected override void OnContinue()
         {
             eventLog1.WriteEntry("In OnContinue.");
-        }
-
-        // Define the event handlers.
-        private void OnChanged(object source, FileSystemEventArgs e)
-        {
-            eventLog1.WriteEntry("in service on changed" + e.Name, EventLogEntryType.Information);
-            // Specify what is done when a file is changed, created, or deleted.
-            Console.WriteLine("File: " + e.FullPath + " " + e.ChangeType);
-        }
-
-        private  void OnRenamed(object source, RenamedEventArgs e)
-        {
-            eventLog1.WriteEntry("in service on renamed" + e.Name, EventLogEntryType.Information);
-            // Specify what is done when a file is renamed.
-            Console.WriteLine("File: {0} renamed to {1}", e.OldFullPath, e.FullPath);
         }
     }
 }

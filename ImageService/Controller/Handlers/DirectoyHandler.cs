@@ -24,6 +24,7 @@ namespace ImageService.Controller.Handlers
         public event EventHandler<DirectoryCloseEventArgs> DirectoryClose;
         public DirectoyHandler(string path, IImageController m, ILoggingService l)
         {
+
             this.m_path = path;
             this.m_controller = m;
             this.m_logging = l;
@@ -41,12 +42,11 @@ namespace ImageService.Controller.Handlers
            | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             //this.m_dirWatcher.NotifyFilter = NotifyFilters.CreationTime;
             //"*,.jpg,*.png,*.gif,*.bmp"
-            this.m_dirWatcher.Filter = ".jpg";
             //this.m_dirWatcher.Changed += new FileSystemEventHandler(OnNewFile);
             this.m_dirWatcher.Changed += new FileSystemEventHandler(this.OnNewFile);
             this.m_dirWatcher.Created += new FileSystemEventHandler(this.OnNewFile);
-            this.m_dirWatcher.Deleted += new FileSystemEventHandler(this.OnNewFile);
-            this.m_dirWatcher.Renamed += new RenamedEventHandler(this.OnNewFile);
+           // this.m_dirWatcher.Deleted += new FileSystemEventHandler(this.OnNewFile);
+            //this.m_dirWatcher.Renamed += new RenamedEventHandler(this.OnNewFile);
             this.m_dirWatcher.EnableRaisingEvents = true;
             //this.m_dirWatcher.Created += this.OnNewFile;
             this.m_logging.Log("in initialize watcher of handler", MessageTypeEnum.INFO);
@@ -94,13 +94,25 @@ namespace ImageService.Controller.Handlers
 
         public void OnNewFile(object sender, FileSystemEventArgs e)
         {
-            // System.Diagnostics.Debugger.Launch();
-            //Console.ReadKey();
-            string[] filters = { "*.jpg", "*.png", "*.gif", "*.bmp"};
+            string[] filters = { ".jpg", ".png", ".gif", ".bmp"};
             string strFileExt = Path.GetExtension(e.FullPath);
+            this.m_logging.Log("in handler - event on new file reciveced for before entering the condition" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            System.Diagnostics.Debugger.Launch();
+            //enter here only if the file contains one of the extensions
             if (filters.Contains(strFileExt))
-            { 
-                this.m_logging.Log("in handler - event on new file reciveced for" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            {
+                string[] args = { e.FullPath, e.Name };
+                //bool result = true;
+                this.m_controller.ExecuteCommand((int)CommandEnum.NewFileCommand, args, out bool result);
+                if (result)
+                {
+                    this.m_logging.Log("in handler - event on new file reciveced for" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                }
+                else
+                {
+                    this.m_logging.Log("in handler - event on new file reciveced for" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+                }
+                
             }
             //this.m_controller.ExecuteCommand((int)CommandEnum.NewFileCommand, null, out bool res);
         }
