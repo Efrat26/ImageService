@@ -106,7 +106,7 @@ namespace ImageService1
         }
         protected void OnStop(object sender, DirectoryCloseEventArgs e)
         {
-            System.Diagnostics.Debugger.Launch();
+            
             ServiceClose?.Invoke(this, null);
             eventLog1.WriteEntry("In onStop.");
         }

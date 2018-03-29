@@ -50,11 +50,17 @@ namespace ImageService.Server
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {
             this.m_logging.Log("in on close of server", MessageTypeEnum.INFO);
+          // 
             this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand,null,null));
-            this.m_logging.Log(e.Message, MessageTypeEnum.INFO);
+            this.m_logging.Log("after closing handlers", MessageTypeEnum.INFO);
             //remove the methods that signed to the events
-            this.CommandRecieved -= ((IDirectoryHandler)sender).OnCommand;
-            ((IDirectoryHandler)sender).DirectoryClose -= this.OnClose;
+            System.Diagnostics.Debugger.Launch();
+            foreach (IDirectoryHandler handler in this.m_handler)
+            {
+                this.CommandRecieved -= handler.OnCommand;
+                handler.DirectoryClose -= this.OnClose;
+            }
+            
         }
         public void CreateHandlerForFolder(string path)
         {

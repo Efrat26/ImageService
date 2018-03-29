@@ -59,10 +59,12 @@ namespace ImageService.Controller.Handlers
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {
             this.m_logging.Log("in on command of handler", MessageTypeEnum.INFO);
+          // System.Diagnostics.Debugger.Launch();
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
                 this.m_dirWatcher.EnableRaisingEvents = false;
                 this.m_dirWatcher.Dispose();
+                this.m_logging.Log("file system watch closed", MessageTypeEnum.INFO);
             }
             else
             {
