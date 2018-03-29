@@ -36,7 +36,7 @@ namespace ImageService.Controller.Handlers
             this.m_dirWatcher.Path = this.m_path;
             this.m_dirWatcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
            | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            this.m_dirWatcher.Created += new FileSystemEventHandler(this.OnNewFile);
+            this.m_dirWatcher.Created += this.OnNewFile;
             this.m_dirWatcher.EnableRaisingEvents = true;
             this.m_logging.Log("in initialize watcher of handler", MessageTypeEnum.INFO);
         }
@@ -62,6 +62,7 @@ namespace ImageService.Controller.Handlers
           // System.Diagnostics.Debugger.Launch();
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
+                this.m_dirWatcher.Changed -= this.OnNewFile;
                 this.m_dirWatcher.EnableRaisingEvents = false;
                 this.m_dirWatcher.Dispose();
                 this.m_logging.Log("file system watch closed", MessageTypeEnum.INFO);

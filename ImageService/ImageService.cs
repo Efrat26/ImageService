@@ -51,9 +51,9 @@ namespace ImageService1
         public ImageService(string[] args)
         {
             InitializeComponent();
-            string eventSourceName = ConfigurationSettings.AppSettings.Get("SourceName");
+            string eventSourceName = ConfigurationManager.AppSettings["SourceName"];
             //"MySource";
-            string logName = ConfigurationSettings.AppSettings.Get("LogName");
+            string logName = ConfigurationManager.AppSettings["LogName"];
             //"MyNewLog";
             eventLog1 = new System.Diagnostics.EventLog();
             if (!System.Diagnostics.EventLog.SourceExists(eventSourceName))
