@@ -14,14 +14,14 @@ namespace ImageService.Commands
         /// <summary>
         /// The image service modal
         /// </summary>
-        private IImageServiceModal m_modal;
+        private IImageServiceModal modal;
         /// <summary>
         /// Initializes a new instance of the <see cref="CloseCommand"/> class.
         /// </summary>
-        /// <param name="modal">The modal.</param>
-        public CloseCommand(IImageServiceModal modal)
+        /// <param name="m">The modal.</param>
+        public CloseCommand(IImageServiceModal m)
         {
-            m_modal = modal;            // Storing the Modal
+            modal = m;            // Storing the Modal
         }
         /// <summary>
         /// Executes the command - currently not in use.

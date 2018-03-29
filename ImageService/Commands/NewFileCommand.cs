@@ -12,12 +12,12 @@ namespace ImageService.Commands
         /// <summary>
         /// The modal that does the operation
         /// </summary>
-        private IImageServiceModal m_modal;
+        private IImageServiceModal modal;
         
-        /// <param name="modal">The modal.</param>
-        public NewFileCommand(IImageServiceModal modal)
+        /// <param name="m">The modal.</param>
+        public NewFileCommand(IImageServiceModal m)
         {
-            m_modal = modal;
+            modal = m;
         }
         /// <summary>
         /// Executes the specified command (by command ID).
@@ -31,7 +31,7 @@ namespace ImageService.Commands
         public string Execute(string[] args, out bool result)
         {
             // The String Will Return the New Path if result = true, and will return the error message
-            string path = this.m_modal.AddFile(args[0], out bool res);
+            string path = this.modal.AddFile(args[0], out bool res);
             if (res == true)
             {
                 result = true;

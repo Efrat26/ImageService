@@ -21,15 +21,15 @@ namespace ImageService.Server
         /// <summary>
         /// The controller - holds the object to threat the command (dictionary with commands)
         /// </summary>
-        private IImageController m_controller;
+        private IImageController controller;
         /// <summary>
         /// The logging service
         /// </summary>
-        private ImageService.Logging.ILoggingService m_logging;
+        private ImageService.Logging.ILoggingService logging;
         /// <summary>
         /// a list with handlers
         /// </summary>
-        private List<IDirectoryHandler> m_handler;
+        private List<IDirectoryHandler> handler;
         #endregion
         #region Properties     
         /// <summary>
@@ -44,11 +44,11 @@ namespace ImageService.Server
         public ImageServer(ILoggingService l)
         {
             //thr logger of the service
-            this.m_logging = l;
+            this.logging = l;
             //create image model
-            this.m_controller = new ImageController(new ImageServiceModal());
+            this.controller = new ImageController(new ImageServiceModal());
             //initialize handlers list
-            this.m_handler = new List<IDirectoryHandler>();
+            this.handler = new List<IDirectoryHandler>();
             //create the handler and sign the onClose method to the event
             string folderToListen = ConfigurationManager.AppSettings.Get("Handler");
             string[] folders = folderToListen.Split(';');
@@ -60,7 +60,7 @@ namespace ImageService.Server
                     this.CreateHandlerForFolder(folder);
                 }
             }
-            this.m_logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
         /// <summary>
         /// Raises the Close event.
@@ -69,13 +69,13 @@ namespace ImageService.Server
         /// <param name="e">The <see cref="DirectoryCloseEventArgs" /> instance containing the event data.</param>
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {
-            this.m_logging.Log("in on close of server", MessageTypeEnum.INFO);
+            this.logging.Log("in on close of server", MessageTypeEnum.INFO);
           // 
             this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand,null,null));
-            this.m_logging.Log("after closing handlers", MessageTypeEnum.INFO);
+            this.logging.Log("after closing handlers", MessageTypeEnum.INFO);
             //remove the methods that signed to the events
             System.Diagnostics.Debugger.Launch();
-            foreach (IDirectoryHandler handler in this.m_handler)
+            foreach (IDirectoryHandler handler in this.handler)
             {
                 this.CommandRecieved -= handler.OnCommand;
                 handler.DirectoryClose -= this.OnClose;
@@ -90,10 +90,10 @@ namespace ImageService.Server
         {
            
             //create the handler and sign the onClose method to the event
-            this.m_handler.Add( new DirectoyHandler(path, this.m_controller, this.m_logging));
-            this.m_handler.Last().DirectoryClose += this.OnClose;
+            this.handler.Add( new DirectoyHandler(path, this.controller, this.logging));
+            this.handler.Last().DirectoryClose += this.OnClose;
             //register the handler to the event of command recieved 
-            this.CommandRecieved += this.m_handler.Last().OnCommand;
+            this.CommandRecieved += this.handler.Last().OnCommand;
         }
     }
 }

@@ -14,7 +14,7 @@ namespace ImageService.Controller
         /// <summary>
         /// The Modal Object that does the action 
         /// </summary>
-        private IImageServiceModal m_modal;
+        private IImageServiceModal modal;
         /// <summary>
         /// a commands dictionary
         /// </summary>
@@ -23,16 +23,16 @@ namespace ImageService.Controller
         /// Initializes a new instance of the <see cref="ImageController"/> class.
         /// </summary>
         /// <param name="modal">The modal.</param>
-        public ImageController(IImageServiceModal modal)
+        public ImageController(IImageServiceModal m)
         {
             // Storing the Modal Of The System
-            m_modal = modal;
+            modal = m;
             //creates the directory with the commands
             commands = new Dictionary<int, ICommand>()
             {
                 // For Now will contain NEW_FILE_COMMAND
-                {(int)CommandEnum.NewFileCommand, new NewFileCommand(this.m_modal)},
-                { (int)CommandEnum.CloseCommand, new CloseCommand(this.m_modal)}
+                {(int)CommandEnum.NewFileCommand, new NewFileCommand(this.modal)},
+                { (int)CommandEnum.CloseCommand, new CloseCommand(this.modal)}
             };
         }
         /// <summary>

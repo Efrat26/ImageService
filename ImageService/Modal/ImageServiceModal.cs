@@ -16,27 +16,27 @@ namespace ImageService.Modal
         /// <summary>
         /// The output folder path
         /// </summary>
-        private string m_OutputFolder;     
+        private string outputFolder;     
         /// <summary>
         /// thumbnail size
         /// </summary>
-        private int m_thumbnailSize;
+        private int thumbnailSize;
         /// <summary>
         /// path to the thumbnail folder
         /// </summary>
-        private string m_thumbnailpath;
+        private string thumbnailpath;
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
         public ImageServiceModal()
         {
-            this.m_OutputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
-            this.m_thumbnailpath = this.m_OutputFolder + "\\\\" + "Thumbnails";
+            this.outputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
+            this.thumbnailpath = this.outputFolder + "\\\\" + "Thumbnails";
             //try to parse the data
             try
             {
-                this.m_thumbnailSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ThumbnailSize"));
+                this.thumbnailSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ThumbnailSize"));
             } catch (Exception e)
             {
                 Console.WriteLine(e);
@@ -56,7 +56,7 @@ namespace ImageService.Modal
             DateTime d = GetDateTakenFromImage(path);
             int year = this.GetYearAsNumber(d);
             int month = this.GetMonthAsNumber(d);
-            string newPath = this.m_OutputFolder + "\\\\" + year;
+            string newPath = this.outputFolder + "\\\\" + year;
             //creates the directory only if not exist
             System.IO.Directory.CreateDirectory(newPath);
             newPath = newPath + "\\\\" + month;
@@ -120,8 +120,8 @@ namespace ImageService.Modal
             try
             {
                 Image image = Image.FromFile(path);
-                Image thumb = image.GetThumbnailImage(this.m_thumbnailSize, this.m_thumbnailSize, () => false, IntPtr.Zero);
-                string thubnail_path = this.m_thumbnailpath + "\\\\" + year + "\\\\" + month;
+                Image thumb = image.GetThumbnailImage(this.thumbnailSize, this.thumbnailSize, () => false, IntPtr.Zero);
+                string thubnail_path = this.thumbnailpath + "\\\\" + year + "\\\\" + month;
                 System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
                 thumb.Save(thubnail_path + "\\\\" + fileName);
             } catch (Exception e)
