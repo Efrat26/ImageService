@@ -90,7 +90,6 @@ namespace ImageService1
         /// <param name="args">Data passed by the start command.</param>
         protected override void OnStart(string[] args)
         {
-            // System.Diagnostics.Debugger.Launch();
             eventLog1.WriteEntry("In OnStart");
             // Update the service state to Start Pending.  
             ServiceStatus serviceStatus = new ServiceStatus();
@@ -118,7 +117,6 @@ namespace ImageService1
             Console.WriteLine(e.Message);
             string msg = e.Message + " " + e.Status;
             this.eventLog1.WriteEntry(msg); 
-            // System.Diagnostics.Debugger.Launch();
         }
         /// <summary>
         /// When implemented in a derived class, executes when a Stop command is sent to the service 

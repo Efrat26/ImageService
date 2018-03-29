@@ -74,7 +74,6 @@ namespace ImageService.Server
             this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand,null,null));
             this.logging.Log("after closing handlers", MessageTypeEnum.INFO);
             //remove the methods that signed to the events
-            System.Diagnostics.Debugger.Launch();
             foreach (IDirectoryHandler handler in this.handler)
             {
                 this.CommandRecieved -= handler.OnCommand;

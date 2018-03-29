@@ -140,7 +140,7 @@ namespace ImageService.Controller.Handlers
             string strFileExt = Path.GetExtension(e.FullPath);
             this.logging.Log("in handler - event on new file reciveced for before" +
                 " entering the condition" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
-            // System.Diagnostics.Debugger.Launch();
+            System.Diagnostics.Debugger.Launch();
             //enter here only if the file contains one of the extensions
             if (filters.Contains(strFileExt))
             {

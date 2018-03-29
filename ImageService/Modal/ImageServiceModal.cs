@@ -71,7 +71,6 @@ namespace ImageService.Modal
                 result = false;
                 return res;
             }
-                System.Diagnostics.Debugger.Launch();
             string resultThumbnailCopy =
                 this.CreateThumbnailCopy(newPath + "\\\\" + fileName, fileName, year, month);
                if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
