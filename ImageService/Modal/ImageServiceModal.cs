@@ -26,8 +26,7 @@ namespace ImageService.Modal
             } catch (Exception e)
             {
                 Console.WriteLine(e);
-            }
-            
+            } 
         }
         public string AddFile(string path, out bool result)
         {
@@ -39,11 +38,10 @@ namespace ImageService.Modal
             System.IO.Directory.CreateDirectory(newPath);//create only if not exist
             newPath = newPath + "\\\\" + month;
             string fileName = Path.GetFileName(path);
-
-
+            //prepare the source and target string for the move file command
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
             string destFile = System.IO.Path.Combine(newPath, fileName);
-
+            //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
             if (!success)
             {
@@ -56,7 +54,6 @@ namespace ImageService.Modal
                if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
             {
                 result = true;
-                
             }
             else
             {
@@ -66,8 +63,6 @@ namespace ImageService.Modal
         }
         public string MoveFile(string source, string dest, out bool result)
         {
-            // To copy a file to another location and 
-            // overwrite the destination file if it already exists.
             string res;
             try
             {
@@ -83,7 +78,6 @@ namespace ImageService.Modal
             result = true;
             return res;
         }
-        //create file int the folder
         private string CreateThumbnailCopy(string newPath, string fileName, int year, int month)
         {
             try
@@ -115,18 +109,6 @@ namespace ImageService.Modal
         {
             string sYear = d.Year.ToString();
             return Int32.Parse(sYear);
-        }
-        //check if directory exist
-        private bool CheckIfDirExist(string path)
-        {
-            if (Directory.Exists(path))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
         #endregion
     }

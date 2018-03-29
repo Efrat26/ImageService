@@ -50,7 +50,7 @@ namespace ImageService.Server
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {
             this.m_logging.Log("in on close of server", MessageTypeEnum.INFO);
-            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand, null, e.DirectoryPath));
+            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand,null,null));
             this.m_logging.Log(e.Message, MessageTypeEnum.INFO);
             //remove the methods that signed to the events
             this.CommandRecieved -= ((IDirectoryHandler)sender).OnCommand;

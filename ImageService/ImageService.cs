@@ -14,6 +14,7 @@ using ImageService.ImageService.Logging.Modal;
 using System.Configuration;
 using System.IO;
 using System.Security.Permissions;
+using ImageService.Modal.Event;
 
 namespace ImageService1
 {
@@ -24,6 +25,7 @@ namespace ImageService1
         private IServer server;
         [DllImport("advapi32.dll", SetLastError = true)]
         private static extern bool SetServiceStatus(IntPtr handle, ref ServiceStatus serviceStatus);
+        public event EventHandler<DirectoryCloseEventArgs> ServiceClose;
         public enum ServiceState
         {
             SERVICE_STOPPED = 0x00000001,
@@ -88,6 +90,7 @@ namespace ImageService1
             this.log = new LoggingService();
             this.log.MessageRecieved += OnMessage;
             this.server = new ImageServer(this.log);
+            this.ServiceClose += this.server.OnClose;
             this.log.Log("Hello frm service", MessageTypeEnum.INFO);
         }
         public void OnMessage(object sender, MessageRecievedEventArgs e)
@@ -99,6 +102,12 @@ namespace ImageService1
         }
         protected override void OnStop()
         {
+            this.OnStop(null, null);
+        }
+        protected void OnStop(object sender, DirectoryCloseEventArgs e)
+        {
+            System.Diagnostics.Debugger.Launch();
+            ServiceClose?.Invoke(this, null);
             eventLog1.WriteEntry("In onStop.");
         }
         protected override void OnContinue()
