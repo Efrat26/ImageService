@@ -48,7 +48,11 @@ namespace ImageService1
             public int dwCheckPoint;
             public int dwWaitHint;
         };
-        public ImageService(string[] args)
+        /// <summary>
+        /// Initializes a new instance of the class.
+        /// sets the log and the source names
+        /// </summary>
+        public ImageService()
         {
             InitializeComponent();
             string eventSourceName = ConfigurationManager.AppSettings["SourceName"];
@@ -62,8 +66,12 @@ namespace ImageService1
             }
             eventLog1.Source = eventSourceName;
             eventLog1.Log = logName;
-            //this.m_dirWatcher = new FileSystemWatcher();
         }
+        /// <summary>
+        /// Called when [timer]. from the tutorial
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="args">The <see cref="System.Timers.ElapsedEventArgs"/> instance containing the event data.</param>
         public void OnTimer(object sender, System.Timers.ElapsedEventArgs args)
         {
             // TODO: Insert monitoring activities here.  
@@ -74,6 +82,12 @@ namespace ImageService1
             timer.Elapsed += new System.Timers.ElapsedEventHandler(this.OnTimer);
             timer.Start();
         }
+        /// <summary>
+        /// When implemented in a derived class, executes when a Start command is sent to the 
+        /// service by the Service Control Manager (SCM) or when the operating system starts
+        /// (for a service that starts automatically). Specifies actions to take when the service starts.
+        /// </summary>
+        /// <param name="args">Data passed by the start command.</param>
         protected override void OnStart(string[] args)
         {
             // System.Diagnostics.Debugger.Launch();
@@ -93,6 +107,12 @@ namespace ImageService1
             this.ServiceClose += this.server.OnClose;
             this.log.Log("Hello frm service", MessageTypeEnum.INFO);
         }
+        /// <summary>
+        /// Called when a message was recieved.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="MessageRecievedEventArgs"/>
+        /// instance containing the event data.</param>
         public void OnMessage(object sender, MessageRecievedEventArgs e)
         {
             Console.WriteLine(e.Message);
@@ -100,16 +120,33 @@ namespace ImageService1
             this.eventLog1.WriteEntry(msg); 
             // System.Diagnostics.Debugger.Launch();
         }
+        /// <summary>
+        /// When implemented in a derived class, executes when a Stop command is sent to the service 
+        /// by the Service Control Manager (SCM). Specifies actions to take when a service stops running.
+        /// calles the OnStop that raises the event to notify the server that it's about to close
+        /// </summary>
         protected override void OnStop()
         {
             this.OnStop(null, null);
         }
+        /// <summary>
+        /// Called when stopping the server. raises the event
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="DirectoryCloseEventArgs"/>
+        /// instance containing the event data.</param>
         protected void OnStop(object sender, DirectoryCloseEventArgs e)
         {
             
             ServiceClose?.Invoke(this, null);
             eventLog1.WriteEntry("In onStop.");
         }
+        /// <summary>
+        /// When implemented in a derived class,
+        /// <see cref="M:System.ServiceProcess.ServiceBase.OnContinue" /> runs when a Continue command
+        /// is sent to the service by the Service Control Manager (SCM). Specifies actions
+        /// to take when a service resumes normal functioning after being paused.
+        /// </summary>
         protected override void OnContinue()
         {
             eventLog1.WriteEntry("In OnContinue.");

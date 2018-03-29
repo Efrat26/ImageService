@@ -16,7 +16,7 @@ namespace ImageService1
         static void Main(string[] args)
         {
             // Put the body of your old Main method here.  
-            ServiceBase[] ServicesToRun = new ServiceBase[] { new ImageService(args) };
+            ServiceBase[] ServicesToRun = new ServiceBase[] { new ImageService() };
             ServiceBase.Run(ServicesToRun);
         }
 

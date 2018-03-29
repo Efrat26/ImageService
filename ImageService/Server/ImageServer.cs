@@ -17,15 +17,30 @@ namespace ImageService.Server
 {
     class ImageServer : IServer
     {
-        #region Members
+        #region Members        
+        /// <summary>
+        /// The controller - holds the object to threat the command (dictionary with commands)
+        /// </summary>
         private IImageController m_controller;
+        /// <summary>
+        /// The logging service
+        /// </summary>
         private ImageService.Logging.ILoggingService m_logging;
+        /// <summary>
+        /// a list with handlers
+        /// </summary>
         private List<IDirectoryHandler> m_handler;
         #endregion
-        #region Properties
-        // The event that notifies about a new Command being recieved
-        public event EventHandler<CommandRecievedEventArgs> CommandRecieved;          
+        #region Properties     
+        /// <summary>
+        /// Occurs when a command recieved.
+        /// </summary>
+        public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         #endregion
+        /// <summary>
+        /// Initializes a new instance of the class.
+        /// </summary>
+        /// <param name="l">The logging service</param>
         public ImageServer(ILoggingService l)
         {
             //thr logger of the service
@@ -47,6 +62,11 @@ namespace ImageService.Server
             }
             this.m_logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
+        /// <summary>
+        /// Raises the Close event.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="DirectoryCloseEventArgs" /> instance containing the event data.</param>
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {
             this.m_logging.Log("in on close of server", MessageTypeEnum.INFO);
@@ -62,6 +82,10 @@ namespace ImageService.Server
             }
             
         }
+        /// <summary>
+        /// Creates the handlers for folders defined in the app config.
+        /// </summary>
+        /// <param name="path">The path.</param>
         public void CreateHandlerForFolder(string path)
         {
            
