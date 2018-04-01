@@ -80,9 +80,21 @@ namespace ImageService.Modal
             }
 
             string fileName = Path.GetFileName(path);
+          
             //prepare the source and target string for the move file command
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
             string destFile = System.IO.Path.Combine(newPath, fileName);
+            //check if the file exsit in the destenation
+            if (File.Exists(destFile))
+            {
+                //System.Diagnostics.Debugger.Launch();
+                int extensionNum = this.FindFileExtension(sourceFile,
+                    fileName, Path.GetExtension(sourceFile), destFile);
+                //create new name for dest file
+                destFile = System.IO.Path.Combine(newPath,
+                    Path.GetFileNameWithoutExtension(path) + "(" + extensionNum + ")" +
+                    Path.GetExtension(sourceFile));
+            }
             //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
             if (!success)
@@ -91,7 +103,7 @@ namespace ImageService.Modal
                 return res;
             }
             string resultThumbnailCopy =
-                this.CreateThumbnailCopy(newPath + "\\\\" + fileName, fileName, year, month);
+                this.CreateThumbnailCopy(destFile, Path.GetFileName(destFile), year, month);
             if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
             {
                 result = true;
@@ -155,7 +167,10 @@ namespace ImageService.Modal
                 Image image = Image.FromFile(path);
                 Image thumb = image.GetThumbnailImage(this.thumbnailSize, this.thumbnailSize, () => false, IntPtr.Zero);
                 string thubnail_path = this.thumbnailpath + "\\\\" + year + "\\\\" + month;
-                System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
+                if (!Directory.Exists(thubnail_path))
+                {
+                    System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
+                }
                 thumb.Save(thubnail_path + "\\\\" + fileName);
             }
             catch (Exception e)
@@ -194,6 +209,22 @@ namespace ImageService.Modal
         {
             string sYear = d.Year.ToString();
             return Int32.Parse(sYear);
+        }
+        private int FindFileExtension(string p, string fileName, string fileExtension, string newPath)
+        {
+            int count = 1;
+
+            string fileNameOnly = fileName;
+            string extension = fileExtension;
+            string path = p;
+            string newFullPath = newPath;
+
+            while (File.Exists(newFullPath))
+            {
+                string tempFileName = string.Format("{0}({1})", fileNameOnly, count++);
+                newFullPath = Path.Combine(path, tempFileName + extension);
+            }
+            return count;
         }
         #endregion
     }
