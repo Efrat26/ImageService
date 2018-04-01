@@ -18,7 +18,7 @@ namespace ImageService.Modal
         /// <summary>
         /// The output folder path
         /// </summary>
-        private string outputFolder;     
+        private string outputFolder;
         /// <summary>
         /// thumbnail size
         /// </summary>
@@ -27,30 +27,28 @@ namespace ImageService.Modal
         /// path to the thumbnail folder
         /// </summary>
         private string thumbnailpath;
-        private ILoggingService logging;
-        private int counter;
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
-        public ImageServiceModal(ILoggingService l)
+        public ImageServiceModal()
         {
             this.outputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
             this.thumbnailpath = this.outputFolder + "\\\\" + "Thumbnails";
-            this.logging = l;
             //try to parse the data
             try
             {
                 this.thumbnailSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ThumbnailSize"));
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e);
             }
-            this.counter = 0;
             try
             {
                 Directory.CreateDirectory(outputFolder);
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
 
             }
@@ -74,49 +72,35 @@ namespace ImageService.Modal
             {
                 System.IO.Directory.CreateDirectory(newPath);
             }
-                
+
             newPath = newPath + "\\\\" + month;
             if (!Directory.Exists(newPath))
             {
                 System.IO.Directory.CreateDirectory(newPath);
             }
-                
+
             string fileName = Path.GetFileName(path);
             //prepare the source and target string for the move file command
-            this.logging.Log("original path is: " + path, ImageService.Logging.Modal.MessageTypeEnum.INFO);
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
-            //path;
-            //
-
             string destFile = System.IO.Path.Combine(newPath, fileName);
-            //newPath + "\\\\" + fileName;
-            this.logging.Log("file name is: " + fileName, ImageService.Logging.Modal.MessageTypeEnum.INFO);
-            this.logging.Log("dest path is: " + destFile, ImageService.Logging.Modal.MessageTypeEnum.INFO);
-            //
             //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
             if (!success)
             {
-                this.logging.Log("moving the file failed", ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 result = false;
                 return res;
             }
             string resultThumbnailCopy =
                 this.CreateThumbnailCopy(newPath + "\\\\" + fileName, fileName, year, month);
-               if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
+            if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
             {
-                this.logging.Log("creating thumbnail was successful",
-                    ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 result = true;
-                this.counter += 1;
             }
             else
             {
                 result = false;
-                this.logging.Log("creating thumbnail was not successful",
-     ImageService.Logging.Modal.MessageTypeEnum.INFO);
             }
-            return resultThumbnailCopy; 
+            return resultThumbnailCopy;
         }
         /// <summary>
         /// Moves the file from source folder to target folder.
@@ -153,7 +137,7 @@ namespace ImageService.Modal
                 result = false;
                 res = "file does not exist";
             }
-            
+
             return res;
         }
         /// <summary>
@@ -173,10 +157,9 @@ namespace ImageService.Modal
                 string thubnail_path = this.thumbnailpath + "\\\\" + year + "\\\\" + month;
                 System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
                 thumb.Save(thubnail_path + "\\\\" + fileName);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
-                this.logging.Log("in create thumbnail, error is: " + e.ToString(),
-                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 return e.ToString();
             }
             return ResultMessgeEnum.Success.ToString();

@@ -46,7 +46,7 @@ namespace ImageService.Server
             //thr logger of the service
             this.logging = l;
             //create image model
-            this.controller = new ImageController(new ImageServiceModal(l));
+            this.controller = new ImageController(new ImageServiceModal());
             //initialize handlers list
             this.handler = new List<IDirectoryHandler>();
             //create the handler and sign the onClose method to the event
