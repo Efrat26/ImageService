@@ -53,11 +53,11 @@ namespace ImageService.Controller
             resultSuccesful = t.Result;
             if (resultSuccesful)
             {
-                return "success";
+                return ResultMessgeEnum.Success.ToString();
             }
             else
             {
-                return "error";
+                return ResultMessgeEnum.Fail.ToString();
             }
         }
     }

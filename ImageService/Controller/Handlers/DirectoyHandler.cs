@@ -47,7 +47,7 @@ namespace ImageService.Controller.Handlers
             this.controller = m;
             this.logging = l;
             this.dirWatcher = new FileSystemWatcher();
-            this.logging.Log("Hello frm handler", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            //this.logging.Log("Hello frm handler", ImageService.Logging.Modal.MessageTypeEnum.INFO);
             this.InitializeWatcher();
         }
         /// <summary>
@@ -60,7 +60,7 @@ namespace ImageService.Controller.Handlers
            | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             this.dirWatcher.Created += this.OnNewFile;
             this.dirWatcher.EnableRaisingEvents = true;
-            this.logging.Log("in initialize watcher of handler", MessageTypeEnum.INFO);
+            //this.logging.Log("in initialize watcher of handler", MessageTypeEnum.INFO);
         }
         /// <summary>
         /// Executes the command specified by command ID.
@@ -75,9 +75,9 @@ namespace ImageService.Controller.Handlers
         /// </returns>
         public string ExecuteCommand(int commandID, string[] args, out bool result)
         {
-            this.logging.Log("in execute command of server", MessageTypeEnum.INFO);
+            this.logging.Log("in execute command of handler, commandID: " + commandID, MessageTypeEnum.INFO);
             string resVal = controller.ExecuteCommand(commandID, args, out bool res);
-            if (resVal == "success")
+            if (resVal == ResultMessgeEnum.Success.ToString())
             {
                 result = true;
                 this.logging.Log(commandID + " " + resVal, ImageService.Logging.Modal.MessageTypeEnum.INFO);
@@ -101,33 +101,26 @@ namespace ImageService.Controller.Handlers
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
                 this.dirWatcher.Changed -= this.OnNewFile;
-                this.dirWatcher.EnableRaisingEvents = false;
-                this.dirWatcher.Dispose();
+                //this.dirWatcher.EnableRaisingEvents = false;
+                //this.dirWatcher.Dispose();
                 this.logging.Log("file system watch closed", MessageTypeEnum.INFO);
             }
             else
             {
                 if (e.RequestDirPath == this.path)
                 {
-                    if (e.CommandID == (int)CommandEnum.CloseCommand)
+                    string res = this.controller.ExecuteCommand(e.CommandID, e.Args, out bool result);
+                    if (ResultMessgeEnum.Success.Equals(res))
                     {
-                        this.dirWatcher.Dispose();
-                        this.DirectoryClose?.Invoke(this, new DirectoryCloseEventArgs(this.path, "directory closed"));
+                        this.logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.INFO);
                     }
                     else
                     {
-                        string res = this.controller.ExecuteCommand(e.CommandID, e.Args, out bool result);
-                        if (ResultMessgeEnum.Success.Equals(res))
-                        {
-                            this.logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.INFO);
-                        }
-                        else
-                        {
-                            this.logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.FAIL);
-                        }
+                        this.logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                     }
                 }
             }
+
         }
         /// <summary>
         /// Called when there's a new file request.
@@ -138,8 +131,8 @@ namespace ImageService.Controller.Handlers
         {
             string[] filters = { ".jpg", ".png", ".gif", ".bmp" };
             string strFileExt = Path.GetExtension(e.FullPath);
-            this.logging.Log("in handler - event on new file reciveced for before" +
-                " entering the condition" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            // this.logging.Log("in handler - event on new file reciveced. before" +
+            //     " entering the condition" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
             //System.Diagnostics.Debugger.Launch();
             //enter here only if the file contains one of the extensions
             if (filters.Contains(strFileExt))
@@ -150,11 +143,13 @@ namespace ImageService.Controller.Handlers
                 if (result)
                 {
                     this.logging.Log("in handler - event on new file" +
-                        " reciveced for" + e.Name, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                        " reciveced for" + e.Name + " result of executing command was successful",
+                        ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 }
                 else
                 {
-                    this.logging.Log("in handler - event on new file reciveced for" + e.Name,
+                    this.logging.Log("in handler - event on new file reciveced for" + e.Name
+                        + " executing command failed",
                         ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 }
 

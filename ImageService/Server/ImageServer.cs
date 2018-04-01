@@ -46,7 +46,7 @@ namespace ImageService.Server
             //thr logger of the service
             this.logging = l;
             //create image model
-            this.controller = new ImageController(new ImageServiceModal());
+            this.controller = new ImageController(new ImageServiceModal(l));
             //initialize handlers list
             this.handler = new List<IDirectoryHandler>();
             //create the handler and sign the onClose method to the event
@@ -60,7 +60,7 @@ namespace ImageService.Server
                     this.CreateHandlerForFolder(folder);
                 }
             }
-            this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+          //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
         /// <summary>
         /// Raises the Close event.

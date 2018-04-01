@@ -10,7 +10,7 @@ namespace ImageService.ImageService.Logging
     /// <summary>
     /// interface for the logging service
     /// </summary>
-    interface ILoggingService
+    public interface ILoggingService
     {       
         /// <summary>
         /// Occurs when a message recieved.

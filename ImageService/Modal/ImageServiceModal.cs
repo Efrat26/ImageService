@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Drawing;
 using ImageService.ImageService.Infrastructure.Enums;
+using ImageService.ImageService.Logging;
+
 namespace ImageService.Modal
 {
     public class ImageServiceModal : IImageServiceModal
@@ -25,14 +27,17 @@ namespace ImageService.Modal
         /// path to the thumbnail folder
         /// </summary>
         private string thumbnailpath;
+        private ILoggingService logging;
+        private int counter;
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
-        public ImageServiceModal()
+        public ImageServiceModal(ILoggingService l)
         {
             this.outputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
             this.thumbnailpath = this.outputFolder + "\\\\" + "Thumbnails";
+            this.logging = l;
             //try to parse the data
             try
             {
@@ -40,7 +45,15 @@ namespace ImageService.Modal
             } catch (Exception e)
             {
                 Console.WriteLine(e);
-            } 
+            }
+            this.counter = 0;
+            try
+            {
+                Directory.CreateDirectory(outputFolder);
+            } catch(Exception e)
+            {
+
+            }
         }
         /// <summary>
         /// The Function Addes A file to the system
@@ -52,23 +65,39 @@ namespace ImageService.Modal
         /// </returns>
         public string AddFile(string path, out bool result)
         {
-            //System.Diagnostics.Debugger.Launch();
             DateTime d = GetDateTakenFromImage(path);
             int year = this.GetYearAsNumber(d);
             int month = this.GetMonthAsNumber(d);
             string newPath = this.outputFolder + "\\\\" + year;
             //creates the directory only if not exist
-            System.IO.Directory.CreateDirectory(newPath);
+            if (!Directory.Exists(newPath))
+            {
+                System.IO.Directory.CreateDirectory(newPath);
+            }
+                
             newPath = newPath + "\\\\" + month;
-            System.IO.Directory.CreateDirectory(newPath);
+            if (!Directory.Exists(newPath))
+            {
+                System.IO.Directory.CreateDirectory(newPath);
+            }
+                
             string fileName = Path.GetFileName(path);
             //prepare the source and target string for the move file command
+            this.logging.Log("original path is: " + path, ImageService.Logging.Modal.MessageTypeEnum.INFO);
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
+            //path;
+            //
+
             string destFile = System.IO.Path.Combine(newPath, fileName);
+            //newPath + "\\\\" + fileName;
+            this.logging.Log("file name is: " + fileName, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            this.logging.Log("dest path is: " + destFile, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            //
             //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
             if (!success)
             {
+                this.logging.Log("moving the file failed", ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 result = false;
                 return res;
             }
@@ -76,11 +105,16 @@ namespace ImageService.Modal
                 this.CreateThumbnailCopy(newPath + "\\\\" + fileName, fileName, year, month);
                if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
             {
+                this.logging.Log("creating thumbnail was successful",
+                    ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 result = true;
+                this.counter += 1;
             }
             else
             {
                 result = false;
+                this.logging.Log("creating thumbnail was not successful",
+     ImageService.Logging.Modal.MessageTypeEnum.INFO);
             }
             return resultThumbnailCopy; 
         }
@@ -93,18 +127,33 @@ namespace ImageService.Modal
         /// <returns>a string with the error message or success message</returns>
         public string MoveFile(string source, string dest, out bool result)
         {
-            string res;
-            try
+            string res = null;
+            if (File.Exists(source))
             {
-                System.IO.File.Move(source, dest);
+                Task t = new Task(() =>
+                {
+                    bool stop = false; while (!stop)
+                    {
+                        try
+                        {
+                            System.IO.File.Move(@source, @dest);
+                            res = ResultMessgeEnum.Success.ToString();
+                            stop = true;
+                        }
+                        catch (Exception e) { res = e.ToString(); };
+                    }
+                });
+                t.Start();
+                t.Wait();
+                result = true;
                 res = ResultMessgeEnum.Success.ToString();
             }
-            catch (Exception e)
+            else
             {
                 result = false;
-                return res = e.ToString();
+                res = "file does not exist";
             }
-            result = true;
+            
             return res;
         }
         /// <summary>
@@ -126,6 +175,8 @@ namespace ImageService.Modal
                 thumb.Save(thubnail_path + "\\\\" + fileName);
             } catch (Exception e)
             {
+                this.logging.Log("in create thumbnail, error is: " + e.ToString(),
+                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 return e.ToString();
             }
             return ResultMessgeEnum.Success.ToString();
