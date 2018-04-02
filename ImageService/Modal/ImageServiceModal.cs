@@ -31,8 +31,10 @@ namespace ImageService.Modal
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
-        public ImageServiceModal()
+        private ILoggingService log;
+        public ImageServiceModal(ILoggingService l)
         {
+            this.log = l;
             this.outputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
             this.thumbnailpath = this.outputFolder + "\\\\" + "Thumbnails";
             //try to parse the data
@@ -50,7 +52,8 @@ namespace ImageService.Modal
             }
             catch (Exception e)
             {
-
+                this.log.Log("failed to create output dirctory, error is: " + e.Message,
+                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             }
         }
         /// <summary>
@@ -126,19 +129,21 @@ namespace ImageService.Modal
             string res = null;
             if (File.Exists(source))
             {
-                Task t = new Task(() =>
+                Task<string> t = new Task<string>(() =>
                 {
                     try
                     {
-                        System.IO.File.Move(@source, @dest);
+                        System.IO.File.Move(source, dest);
                         res = ResultMessgeEnum.Success.ToString();
 
                     }
-                    catch (Exception e) { res = e.ToString(); };
+                    catch (Exception e) { res = e.ToString();} return res;
 
                 });
                 t.Start();
                 t.Wait();
+                this.log.Log("error occured while moving the file, error is: " + t.Result,
+                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 result = true;
                 res = ResultMessgeEnum.Success.ToString();
             }
@@ -173,6 +178,8 @@ namespace ImageService.Modal
             }
             catch (Exception e)
             {
+                this.log.Log("error occured while creating thumbnail, error is: " + e.Message,
+                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 return e.ToString();
             }
             return ResultMessgeEnum.Success.ToString();
