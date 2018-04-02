@@ -126,6 +126,7 @@ namespace ImageService1
         protected override void OnStop()
         {
             this.OnStop(null, null);
+            this.eventLog1.WriteEntry("service is closed!");
         }
         /// <summary>
         /// Called when stopping the server. raises the event
@@ -136,7 +137,7 @@ namespace ImageService1
         protected void OnStop(object sender, DirectoryCloseEventArgs e)
         {
             
-            ServiceClose?.Invoke(this, null);
+            //ServiceClose?.Invoke(this, null);
             eventLog1.WriteEntry("In onStop.");
         }
         /// <summary>

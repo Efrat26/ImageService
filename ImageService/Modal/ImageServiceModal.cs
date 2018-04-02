@@ -98,28 +98,34 @@ namespace ImageService.Modal
                     Path.GetFileNameWithoutExtension(path) + "(" + extensionNum + ")" +
                     Path.GetExtension(sourceFile));
             }
-
-            //check if file is busy
-            Task t = new Task (() =>
+            if (File.Exists(sourceFile))
             {
-                bool stop = false;
-                bool fileLocked;
-                while (!stop)
-                {
-                    fileLocked = IsFileLocked(new FileInfo(sourceFile));
-                    if (fileLocked == false)
-                    {
-                        stop = true;
-                    }
-                    else
-                    {
-                        Task.Delay(10000);
-                    }
-                }
-            });
-            t.Start();
-            t.Wait();
-
+                //check if file is busy
+                Task t = new Task(() =>
+               {
+                   bool stop = false;
+                   bool fileLocked;
+                   while (!stop)
+                   {
+                       fileLocked = IsFileLocked(new FileInfo(sourceFile));
+                       if (fileLocked == false)
+                       {
+                           stop = true;
+                       }
+                       else
+                       {
+                           Task.Delay(10000);
+                       }
+                   }
+               });
+                t.Start();
+                t.Wait();
+            }
+            else
+            {
+                result = false;
+                return "file does not exist";
+            }
             //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
             if (!success)
@@ -150,33 +156,27 @@ namespace ImageService.Modal
         public string MoveFile(string source, string dest, out bool result)
         {
             string res = null;
-            if (File.Exists(source))
+
+            Task<string> t = new Task<string>(() =>
             {
-                Task<string> t = new Task<string>(() =>
+                Task.Delay(1000);
+                try
                 {
-                    Task.Delay(1000);
-                    try
-                    {
-                        System.IO.File.Move(source, dest);
-                        res = ResultMessgeEnum.Success.ToString();
+                    System.IO.File.Move(source, dest);
+                    res = ResultMessgeEnum.Success.ToString();
 
-                    }
-                    catch (Exception e) { res = e.ToString();} return res;
+                }
+                catch (Exception e) { res = e.ToString(); }
+                return res;
 
-                });
-                t.Start();
-                t.Wait();
-                this.log.Log("error occured while moving the file, error is: " + t.Result,
-                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
-                result = true;
-                res = ResultMessgeEnum.Success.ToString();
-            }
-            else
-            {
-                result = false;
-                res = "file does not exist";
-            }
-
+            });
+            t.Start();
+            // t.Wait();
+            this.log.Log("error occured while moving the file, error is: " + t.Result,
+                ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+            result = true;
+            res = ResultMessgeEnum.Success.ToString();
+            
             return res;
         }
         /// <summary>
