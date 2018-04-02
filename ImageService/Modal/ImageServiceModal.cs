@@ -115,6 +115,7 @@ namespace ImageService.Modal
             {
                 result = false;
             }
+            
             return resultThumbnailCopy;
         }
         /// <summary>
