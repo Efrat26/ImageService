@@ -98,6 +98,28 @@ namespace ImageService.Modal
                     Path.GetFileNameWithoutExtension(path) + "(" + extensionNum + ")" +
                     Path.GetExtension(sourceFile));
             }
+
+            //check if file is busy
+            Task t = new Task (() =>
+            {
+                bool stop = false;
+                bool fileLocked;
+                while (!stop)
+                {
+                    fileLocked = IsFileLocked(new FileInfo(sourceFile));
+                    if (fileLocked == false)
+                    {
+                        stop = true;
+                    }
+                    else
+                    {
+                        Task.Delay(10000);
+                    }
+                }
+            });
+            t.Start();
+            t.Wait();
+
             //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
             if (!success)
@@ -132,6 +154,7 @@ namespace ImageService.Modal
             {
                 Task<string> t = new Task<string>(() =>
                 {
+                    Task.Delay(1000);
                     try
                     {
                         System.IO.File.Move(source, dest);
@@ -242,6 +265,32 @@ namespace ImageService.Modal
                 newFullPath = Path.Combine(path, tempFileName + extension);
             }
             return count;
+        }
+
+        protected virtual bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
         #endregion
     }

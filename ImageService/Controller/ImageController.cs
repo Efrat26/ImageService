@@ -47,9 +47,9 @@ namespace ImageService.Controller
             bool result;
             //this.commands[commandID].Execute(args, out result);
             Task<bool> t = new Task<bool>(() =>
-            { this.commands[commandID].Execute(args, out result);return result; });
+            {Task.Delay(1000); this.commands[commandID].Execute(args, out result);return result; });
             t.Start();
-           // t.Wait();
+            t.Wait();
             //wait for the result from the task and return a boolean accordingly
             resultSuccesful = t.Result;
             if (resultSuccesful)
