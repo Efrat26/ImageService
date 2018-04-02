@@ -20,5 +20,11 @@ namespace ImageService.Controller
         /// <returns>a string contains error message (if error occured) or a
         /// success message if it done without errors</returns>
         string ExecuteCommand(int commandID, string[] args, out bool result);
+        /// <summary>
+        /// Called when service is closed.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
+        void OnCloseOfService(object sender, EventArgs e);
     }
 }

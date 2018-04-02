@@ -60,5 +60,10 @@ namespace ImageService.Controller
                 return ResultMessgeEnum.Fail.ToString();
             }
         }
+        //currently doing nothing
+        public void OnCloseOfService(object sender, EventArgs e)
+        {
+            
+        }
     }
 }

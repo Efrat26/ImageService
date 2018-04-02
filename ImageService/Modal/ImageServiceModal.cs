@@ -128,16 +128,14 @@ namespace ImageService.Modal
             {
                 Task t = new Task(() =>
                 {
-                    bool stop = false; while (!stop)
+                    try
                     {
-                        try
-                        {
-                            System.IO.File.Move(@source, @dest);
-                            res = ResultMessgeEnum.Success.ToString();
-                            stop = true;
-                        }
-                        catch (Exception e) { res = e.ToString(); };
+                        System.IO.File.Move(@source, @dest);
+                        res = ResultMessgeEnum.Success.ToString();
+
                     }
+                    catch (Exception e) { res = e.ToString(); };
+
                 });
                 t.Start();
                 t.Wait();
@@ -210,6 +208,17 @@ namespace ImageService.Modal
             string sYear = d.Year.ToString();
             return Int32.Parse(sYear);
         }
+        /// <summary>
+        /// this function finds a different name to the file if the file is already exsiting
+        /// by adding a number to the file name. it finds the least number that makes the 
+        /// file to not be already existed in the system. 
+        /// i used this code: https://stackoverflow.com/questions/13049732/automatically-rename-a-file-if-it-already-exists-in-windows-way
+        /// </summary>
+        /// <param name="p">The path (source path)</param>
+        /// <param name="fileName">Name of the file.</param>
+        /// <param name="fileExtension">The file extension.</param>
+        /// <param name="newPath">The destenation path.</param>
+        /// <returns> the number to add to the end of the file name </returns>
         private int FindFileExtension(string p, string fileName, string fileExtension, string newPath)
         {
             int count = 1;

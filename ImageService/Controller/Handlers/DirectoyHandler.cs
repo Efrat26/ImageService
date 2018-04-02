@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using ImageService.ImageService.Infrastructure.Enums;
 
 namespace ImageService.Controller.Handlers
 {
@@ -49,6 +48,7 @@ namespace ImageService.Controller.Handlers
             this.dirWatcher = new FileSystemWatcher();
             //this.logging.Log("Hello frm handler", ImageService.Logging.Modal.MessageTypeEnum.INFO);
             this.InitializeWatcher();
+            this.DirectoryClose += this.controller.OnCloseOfService;
         }
         /// <summary>
         /// Initializes the watcher - signs to the OnCreated event and enable rising events
@@ -101,8 +101,10 @@ namespace ImageService.Controller.Handlers
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
                 this.dirWatcher.Changed -= this.OnNewFile;
-                //this.dirWatcher.EnableRaisingEvents = false;
-                //this.dirWatcher.Dispose();
+                this.dirWatcher.EnableRaisingEvents = false;
+                this.dirWatcher.Dispose();
+                //notify every one that signed to the event about the service being closed
+                this.DirectoryClose?.Invoke(this, null);
                 this.logging.Log("file system watch closed", MessageTypeEnum.INFO);
             }
             else
