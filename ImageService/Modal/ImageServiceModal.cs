@@ -172,7 +172,7 @@ namespace ImageService.Modal
             });
             t.Start();
             // t.Wait();
-            this.log.Log("error occured while moving the file, error is: " + t.Result,
+            this.log.Log("moving the file to destenation folder, result is: " + t.Result,
                 ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             result = true;
             res = ResultMessgeEnum.Success.ToString();
