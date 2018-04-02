@@ -28,10 +28,15 @@ namespace ImageService.Modal
         /// </summary>
         private string thumbnailpath;
         /// <summary>
+        /// a logging service - in the file structure given it wasn't there but
+        /// i prefered to add it to here for easier debugging.
+        /// </summary>
+        private ILoggingService log;
+        /// <summary>
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
-        private ILoggingService log;
+
         public ImageServiceModal(ILoggingService l)
         {
             this.log = l;
@@ -44,20 +49,25 @@ namespace ImageService.Modal
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                this.log.Log("failed to convert thubnail size from app configuration",
+                     ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             }
-            try
+            //try to create the output folder only if it's not exist
+            if (!Directory.Exists(outputFolder))
             {
-                Directory.CreateDirectory(outputFolder);
-            }
-            catch (Exception e)
-            {
-                this.log.Log("failed to create output dirctory, error is: " + e.Message,
-                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+                try
+                {
+                    Directory.CreateDirectory(outputFolder);
+                }
+                catch (Exception e)
+                {
+                    this.log.Log("failed to create output dirctory, error is: " + e.Message,
+                        ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+                }
             }
         }
         /// <summary>
-        /// The Function Addes A file to the system
+        /// The Function Addes A file to the system and is responsible for the logic
         /// </summary>
         /// <param name="path">The Path of the Image from the file</param>
         /// <param name="result"></param>
@@ -87,7 +97,7 @@ namespace ImageService.Modal
             //prepare the source and target string for the move file command
             string sourceFile = System.IO.Path.Combine(Path.GetDirectoryName(path), fileName);
             string destFile = System.IO.Path.Combine(newPath, fileName);
-            //check if the file exsit in the destenation
+            //check if the file exsit in the destenation - if it does need to find another name for it
             if (File.Exists(destFile))
             {
                 //System.Diagnostics.Debugger.Launch();
@@ -128,11 +138,13 @@ namespace ImageService.Modal
             }
             //move the file
             string res = this.MoveFile(sourceFile, destFile, out bool success);
+            //if move failed - return
             if (!success)
             {
                 result = false;
                 return res;
             }
+            //create a thumbnail copy
             string resultThumbnailCopy =
                 this.CreateThumbnailCopy(destFile, Path.GetFileName(destFile), year, month);
             if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
@@ -142,8 +154,7 @@ namespace ImageService.Modal
             else
             {
                 result = false;
-            }
-            
+            } 
             return resultThumbnailCopy;
         }
         /// <summary>
@@ -175,8 +186,7 @@ namespace ImageService.Modal
             this.log.Log("moving the file to destenation folder, result is: " + t.Result,
                 ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             result = true;
-            res = ResultMessgeEnum.Success.ToString();
-            
+            res = ResultMessgeEnum.Success.ToString(); 
             return res;
         }
         /// <summary>
@@ -266,7 +276,13 @@ namespace ImageService.Modal
             }
             return count;
         }
-
+        /// <summary>
+        /// Determines whether the file is locked.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <returns>
+        ///   <c>true</c> if is file locked and otherwise, <c>false</c>.
+        /// </returns>
         protected virtual bool IsFileLocked(FileInfo file)
         {
             FileStream stream = null;
