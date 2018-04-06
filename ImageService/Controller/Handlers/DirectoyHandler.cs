@@ -101,8 +101,15 @@ namespace ImageService.Controller.Handlers
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
                 this.dirWatcher.Changed -= this.OnNewFile;
-                this.dirWatcher.EnableRaisingEvents = false;
-                this.dirWatcher.Dispose();
+                try
+                {
+                    this.dirWatcher.EnableRaisingEvents = false;
+                    this.dirWatcher.Dispose();
+                }
+                catch (Exception)
+                {
+                    this.logging.Log("error while closing the File System Watcher",MessageTypeEnum.INFO );
+                }
                 //notify every one that signed to the event about the service being closed
                 this.DirectoryClose?.Invoke(this, null);
                 this.logging.Log("file system watch closed", MessageTypeEnum.INFO);

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Drawing;
 using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.ImageService.Logging;
+using System.Drawing.Imaging;
 
 namespace ImageService.Modal
 {
@@ -36,9 +37,10 @@ namespace ImageService.Modal
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
-
+        private bool errorInGettingDate;
         public ImageServiceModal(ILoggingService l)
         {
+            this.errorInGettingDate = false;
             this.log = l;
             this.outputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
             this.thumbnailpath = this.outputFolder + "\\\\" + "Thumbnails";
@@ -76,6 +78,7 @@ namespace ImageService.Modal
         /// </returns>
         public string AddFile(string path, out bool result)
         {
+            System.Diagnostics.Debugger.Launch();
             DateTime d = GetDateTakenFromImage(path);
             int year = this.GetYearAsNumber(d);
             int month = this.GetMonthAsNumber(d);
@@ -218,15 +221,76 @@ namespace ImageService.Modal
             }
             return ResultMessgeEnum.Success.ToString();
         }
+
+        //###changed this method
         /// <summary>
         /// get the date image was created .
         /// </summary>
         /// <param name="path">The path to the file.</param>
         /// <returns>return a Datetime object about the creation of the folder </returns>
-        private static DateTime GetDateTakenFromImage(string path)
+       private  DateTime GetDateFileCreatedFromImage(string path)
         {
-            return File.GetCreationTime(path);
+            DateTime d;
+            try
+            {
+                d = File.GetCreationTime(path);
+            } catch (Exception)
+            {
+                d = DateTime.Now;
+                this.errorInGettingDate = true;
+                this.log.Log("error in GetDateFileCreatedFromImage, putting the date and time of now",
+                    ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            }
+            return d;
+       }
+
+        /// <summary>
+        /// Gets the date taken from image. if it doesnt succeed it calls the method:
+        /// GetDateFileCreatedFromImage() which either returns the DatTime object of when
+        /// the file was created in the folder or the time of now.
+        /// </summary>
+        /// <param name="path">The path of the image intrested.</param>
+        /// <returns></returns>
+        private DateTime GetDateTakenFromImage(string path)
+        {
+            PropertyItem propItem = null;
+            Image myImage = Image.FromFile(path);
+            DateTime dtaken;
+            try
+            {
+                propItem = myImage.GetPropertyItem(306);
+            }
+            catch (Exception)
+            {
+                this.log.Log("error in property 306", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                try
+                {
+                    propItem = myImage.GetPropertyItem(36867);
+                }
+                catch (Exception)
+                {
+                    this.log.Log("error in property 36867", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                }
+            }
+
+            if (propItem != null)
+            {
+                //Convert date taken metadata to a DateTime object
+                string sdate = Encoding.UTF8.GetString(propItem.Value).Trim();
+                string secondhalf = sdate.Substring(sdate.IndexOf(" "), (sdate.Length - sdate.IndexOf(" ")));
+                string firsthalf = sdate.Substring(0, 10);
+                firsthalf = firsthalf.Replace(":", "-");
+                sdate = firsthalf + secondhalf;
+                dtaken = DateTime.Parse(sdate);
+
+            }
+            else
+            {
+                dtaken = GetDateFileCreatedFromImage(path);
+            }
+            return dtaken;
         }
+
         /// <summary>
         /// returns the month as number.
         /// </summary>
@@ -238,6 +302,8 @@ namespace ImageService.Modal
             string sMonth = d.Month.ToString();
             return Int32.Parse(sMonth);
         }
+
+
         /// <summary>
         /// Gets the year as number.
         /// </summary>
