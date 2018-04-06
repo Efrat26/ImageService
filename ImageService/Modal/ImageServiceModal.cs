@@ -78,7 +78,7 @@ namespace ImageService.Modal
         /// </returns>
         public string AddFile(string path, out bool result)
         {
-            System.Diagnostics.Debugger.Launch();
+            //System.Diagnostics.Debugger.Launch();
             DateTime d = GetDateTakenFromImage(path);
             int year = this.GetYearAsNumber(d);
             int month = this.GetMonthAsNumber(d);
@@ -221,8 +221,6 @@ namespace ImageService.Modal
             }
             return ResultMessgeEnum.Success.ToString();
         }
-
-        //###changed this method
         /// <summary>
         /// get the date image was created .
         /// </summary>
