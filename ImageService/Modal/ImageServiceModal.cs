@@ -47,17 +47,19 @@ namespace ImageService.Modal
             {
                 this.thumbnailSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ThumbnailSize"));
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 this.log.Log("failed to convert thubnail size from app configuration",
                      ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             }
-            //try to create the output folder only if it's not exist
+            //try to create the output folder only if it's not exist as an hidden folder
             if (!Directory.Exists(outputFolder))
             {
                 try
                 {
-                    Directory.CreateDirectory(outputFolder);
+                    DirectoryInfo di = Directory.CreateDirectory(outputFolder);
+                    di.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                    
                 }
                 catch (Exception e)
                 {
@@ -220,11 +222,13 @@ namespace ImageService.Modal
             return ResultMessgeEnum.Success.ToString();
         }
         /// <summary>
-        /// get the date image was created .
+        /// get the date image was created. the link that Dor sent to us didn't work:
+        /// -a-when-out-find-i-can-https://stackoverflow.com/questions/180030/how vista-on-running-sharp-c-in-taken-actually-was-picture
+        /// after talking with him - he allows me to use this function.
         /// </summary>
         /// <param name="path">The path to the file.</param>
         /// <returns>return a Datetime object about the creation of the folder </returns>
-       private  DateTime GetDateFileCreatedFromImage(string path)
+        private DateTime GetDateFileCreatedFromImage(string path)
         {
             DateTime d;
             try
