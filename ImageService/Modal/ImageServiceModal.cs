@@ -37,10 +37,8 @@ namespace ImageService.Modal
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
         /// </summary>
-        private bool errorInGettingDate;
         public ImageServiceModal(ILoggingService l)
         {
-            this.errorInGettingDate = false;
             this.log = l;
             this.outputFolder = ConfigurationManager.AppSettings.Get("OutputDir");
             this.thumbnailpath = this.outputFolder + "\\\\" + "Thumbnails";
@@ -79,7 +77,7 @@ namespace ImageService.Modal
         public string AddFile(string path, out bool result)
         {
             //System.Diagnostics.Debugger.Launch();
-            DateTime d = GetDateTakenFromImage(path);
+            DateTime d = GetDateFileCreatedFromImage(path);
             int year = this.GetYearAsNumber(d);
             int month = this.GetMonthAsNumber(d);
             string newPath = this.outputFolder + "\\\\" + year;
@@ -235,59 +233,11 @@ namespace ImageService.Modal
             } catch (Exception)
             {
                 d = DateTime.Now;
-                this.errorInGettingDate = true;
                 this.log.Log("error in GetDateFileCreatedFromImage, putting the date and time of now",
                     ImageService.Logging.Modal.MessageTypeEnum.INFO);
             }
             return d;
        }
-
-        /// <summary>
-        /// Gets the date taken from image. if it doesnt succeed it calls the method:
-        /// GetDateFileCreatedFromImage() which either returns the DatTime object of when
-        /// the file was created in the folder or the time of now.
-        /// </summary>
-        /// <param name="path">The path of the image intrested.</param>
-        /// <returns></returns>
-        private DateTime GetDateTakenFromImage(string path)
-        {
-            PropertyItem propItem = null;
-            Image myImage = Image.FromFile(path);
-            DateTime dtaken;
-            try
-            {
-                propItem = myImage.GetPropertyItem(306);
-            }
-            catch (Exception)
-            {
-                this.log.Log("error in property 306", ImageService.Logging.Modal.MessageTypeEnum.INFO);
-                try
-                {
-                    propItem = myImage.GetPropertyItem(36867);
-                }
-                catch (Exception)
-                {
-                    this.log.Log("error in property 36867", ImageService.Logging.Modal.MessageTypeEnum.INFO);
-                }
-            }
-
-            if (propItem != null)
-            {
-                //Convert date taken metadata to a DateTime object
-                string sdate = Encoding.UTF8.GetString(propItem.Value).Trim();
-                string secondhalf = sdate.Substring(sdate.IndexOf(" "), (sdate.Length - sdate.IndexOf(" ")));
-                string firsthalf = sdate.Substring(0, 10);
-                firsthalf = firsthalf.Replace(":", "-");
-                sdate = firsthalf + secondhalf;
-                dtaken = DateTime.Parse(sdate);
-
-            }
-            else
-            {
-                dtaken = GetDateFileCreatedFromImage(path);
-            }
-            return dtaken;
-        }
 
         /// <summary>
         /// returns the month as number.
@@ -326,17 +276,19 @@ namespace ImageService.Modal
         /// <returns> the number to add to the end of the file name </returns>
         private int FindFileExtension(string p, string fileName, string fileExtension, string newPath)
         {
-            int count = 1;
+            int count = 0;
 
             string fileNameOnly = fileName;
             string extension = fileExtension;
             string path = p;
             string newFullPath = newPath;
 
-            while (File.Exists(newFullPath))
+            while (File.Exists(@newFullPath))
             {
-                string tempFileName = string.Format("{0}({1})", fileNameOnly, count++);
-                newFullPath = Path.Combine(path, tempFileName + extension);
+                ++count;
+                newFullPath = System.IO.Path.Combine(Path.GetDirectoryName(newPath),
+                    Path.GetFileNameWithoutExtension(path) + "(" + count + ")" +
+                    extension);
             }
             return count;
         }
