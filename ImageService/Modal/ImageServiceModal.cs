@@ -10,6 +10,7 @@ using System.Drawing;
 using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.ImageService.Logging;
 using System.Drawing.Imaging;
+using ImageService.AppConfigObjects;
 
 namespace ImageService.Modal
 {
@@ -330,7 +331,13 @@ namespace ImageService.Modal
         }
         public String GetAppconfig()
         {
-            return null;
+            ImageServiceAppConfigItem configuration;
+             configuration = new ImageServiceAppConfigItem(ConfigurationManager.AppSettings.Get("OutputDir") as String,
+                ConfigurationManager.AppSettings.Get("Handler").ToString(),
+                ConfigurationManager.AppSettings.Get("SourceName").ToString(),
+                ConfigurationManager.AppSettings.Get("LogName").ToString(),
+                Convert.ToInt32((ConfigurationManager.AppSettings.Get("ThumbnailSize")).ToString()));
+            return configuration.ToJSON();
         }
         public String LogCommand()
         {

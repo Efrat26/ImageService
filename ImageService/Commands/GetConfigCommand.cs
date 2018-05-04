@@ -31,16 +31,16 @@ namespace ImageService.Commands
         public string Execute(string[] args, out bool result)
         {
             // The String Will Return the New Path if result = true, and will return the error message
-            string path = this.modal.AddFile(args[0], out bool res);
+            string configuration = this.modal.AddFile(args[0], out bool res);
             if (res == true)
             {
                 result = true;
-                return path;
+                return configuration;
             }
             else
             {
                 result = false;
-                return path;
+                return configuration;
             }
         }
     }

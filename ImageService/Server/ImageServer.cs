@@ -14,6 +14,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using ImageService.ImageService.Infrastructure.Enums;
+using ImageService.Commands;
 
 namespace ImageService.Server
 {
@@ -32,6 +34,8 @@ namespace ImageService.Server
         /// a list with handlers
         /// </summary>
         private List<IDirectoryHandler> handler;
+
+        private List<TcpClient> clients;
         #endregion
         #region Properties     
         /// <summary>
@@ -117,6 +121,15 @@ namespace ImageService.Server
             { while (true) {
                     try { TcpClient client = listener.AcceptTcpClient();
                         Console.WriteLine("Got new connection");
+                        if (!clients.Contains(client))
+                        {
+                            controller.ExecuteCommand((int)CommandEnum.GetConfigCommand, null, out bool result);
+                            clients.Add(client);
+                        }
+                        else
+                        {
+
+                        }
                        // ch.HandleClient(client);
                     } catch (SocketException)
                     { break; }
