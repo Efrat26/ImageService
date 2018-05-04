@@ -102,7 +102,7 @@ namespace ImageService1
             //create logger and server
             this.log = new LoggingService();
             this.log.MessageRecieved += OnMessage;
-            this.server = new ImageServer(this.log);
+            this.server = new ImageServer(this.log, "127.0.0.1", 8000);
             this.ServiceClose += this.server.OnClose;
             this.log.Log("Hello frm service", MessageTypeEnum.INFO);
         }

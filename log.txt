@@ -1,0 +1,298 @@
+commit c685d7867cbdb5f0e8135341535ca13455485d75
+Author: efiso <efisofer26@gmail.com>
+Date:   Tue Apr 10 17:40:27 2018 +0300
+
+    changed the output folder to be hidden as requested in the instructions. added some notes about the get creation date of image.
+
+commit ed926788ba2106700fca6edd0e594d43ce87eeb5
+Author: efiso <efisofer26@gmail.com>
+Date:   Tue Apr 10 17:17:32 2018 +0300
+
+    fixed the bug of the file extension
+
+commit dc2b5c7e294542e179e1e4f7d1c5f59c3838b451
+Author: efiso <efisofer26@gmail.com>
+Date:   Fri Apr 6 16:17:14 2018 +0300
+
+    moved the debugger stop
+
+commit b4a1aef9be2cf143d24b36dcb8fb3655e34f7ae4
+Author: efiso <efisofer26@gmail.com>
+Date:   Fri Apr 6 15:50:14 2018 +0300
+
+    added a try-catch statment to the closing of the FSW and added a method to get the real date of the creation (which isn't working currently).
+
+commit a82be4076eeb8bd80ecdc4193dc6fc3fac8d56f4
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 15:57:35 2018 +0300
+
+    added some documentation and organized the Image Service modal class
+
+commit 8792ac29cceaa7248755f3255b36f5ae02ad99cc
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 13:34:03 2018 +0300
+
+    changed the string that is written to the log file when moving the file
+
+commit 59240aeccf6e176ff0e5d85945888d58cc179ba8
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 13:29:59 2018 +0300
+
+    fixed the bug i had when closing the service!
+
+commit f83184b88fc84a0c3a6806ff76855e02c4b74fda
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 12:54:17 2018 +0300
+
+    added a code to check if the file is used, so we can use it only when it;s free
+
+commit 3bb4011ec5259c142c04d449310ab2bb5cc3ae00
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 11:27:05 2018 +0300
+
+    returned the code as it was before (without using stream). need to check how to fix this problem.
+
+commit 342805ec808bc049c36f756547aa03fe87e222c5
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 10:46:48 2018 +0300
+
+    added the log item to the ctor of image modal service.
+    i noticed that sometimes moving the file cause IO errors. i want to try to use a streamer to to do the action and see if it's better.
+
+commit 5eb9baeb8e6663bb3b9b3a67d1b73850e3969717
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Apr 2 10:11:12 2018 +0300
+
+    added some documentation and event handler of DirectoryClose in DicrctoryHandler class
+
+commit b4a59ec388d00131b5048ff5dcc78e633b087eff
+Author: efiso <efisofer26@gmail.com>
+Date:   Sun Apr 1 23:44:51 2018 +0300
+
+    added a code to handle the case where the file name already exist in destenation folder and checked it.
+
+commit b41a8d5e43d128b5c39c70d5c9b28dc77de2600f
+Author: efiso <efisofer26@gmail.com>
+Date:   Sun Apr 1 19:31:56 2018 +0300
+
+    deleted unnecessary errors
+
+commit ba64d49dad7cbb6d89cb0f0af7d83db33ed63b2a
+Author: efiso <efisofer26@gmail.com>
+Date:   Sun Apr 1 17:47:49 2018 +0300
+
+    fixed the problem of the images that were used by another process.
+    the solution was to create the directory only if it's not exist already, otherwise it makes trouble.
+    still need to make more changes in the code i did for the debugging.
+
+commit e8e68e501cee20733c929fbf069cc1b5f79eb02c
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 23:15:13 2018 +0300
+
+    fixed the problem. accidently the line that creates the folder of the month was deleted so the path wasnt found.
+
+commit 8744e376c2baab757ef8da460a34874f37305738
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 22:43:48 2018 +0300
+
+    removed debugger messages except for the handler because it seems the FSW doesn't handle more than one file
+
+commit 805efb0fe3783598710ffd403bd801c627d8cfbb
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 22:18:00 2018 +0300
+
+    changed names of variables according to the naming convention
+
+commit 1cb33b544585e80dd44bd5d4e324f5d6928ae89b
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 22:06:52 2018 +0300
+
+    more documentaions
+
+commit 94052ab3355e97e337f5639f8961f7a128223b8d
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 21:51:40 2018 +0300
+
+    more documentation
+
+commit fffae65b3a8ed72a40a5d86d3209f8f37686c3d1
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 21:33:16 2018 +0300
+
+    added more documentaion
+
+commit a957c22cf93e438e5ec2cc12fc467c62e87081e4
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 21:15:54 2018 +0300
+
+    added more documentaion
+
+commit a34fccfc3e17b7d2d68c0249e9a755e0ca4f4dcf
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 21:03:56 2018 +0300
+
+    added documentions and fixed some warnings
+
+commit dc2adff09eec8c30aabf4a2bc140e6a7e2d6ea09
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 16:37:40 2018 +0300
+
+    after fixing the closing command of the service
+
+commit 1636709b08ca313256f6286f9a03f248948720d2
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 16:01:17 2018 +0300
+
+    added a closing event to the service and changed the method in the server and the handler so it will stop the system file watcher
+
+commit 6428643dad628d890e07004f51c1bffcc477fd63
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 15:04:59 2018 +0300
+
+    added enum class for result message to indicate success or fail. checked that it's working.
+
+commit d4584af25f0887aba9cc22ef5ae455a5430b0465
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 14:54:18 2018 +0300
+
+    more organization of the code into methods(move file and create thumbnail copy) in the handler class
+
+commit 2b9c4d6235ce330bcb00526a05dc151f698d994e
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 14:23:18 2018 +0300
+
+    fixed the creation of thumbnail image and orgnizing a bit the code
+
+commit 0c67296d5d5762385f2d683feaf9210e4c6424eb
+Author: efiso <efisofer26@gmail.com>
+Date:   Thu Mar 29 11:07:46 2018 +0300
+
+    removed some code from the service (which used for checking the file system watcher checking)  and checked that the file system watcher indeed works in the handler.
+
+commit 8a61d64c0c4b0adf8f7db8636ce11e9ec2c4d44d
+Author: efiso <efisofer26@gmail.com>
+Date:   Wed Mar 28 22:40:11 2018 +0300
+
+    after fixing the system watcher - the problem was that the line of the filtering wasn't right. fixed by adding an array with the extensions that i need to filter
+
+commit b6e22b52d62923764957f809a9ee3d9eb676389e
+Author: efiso <efisofer26@gmail.com>
+Date:   Tue Mar 27 15:06:07 2018 +0300
+
+    fixed the app.config structure, now the values read from it aren't null.
+    also added interface for the server (right now don't have any methods).
+
+commit c57bfc6d40e329dca04e1a198c564e1359f497fb
+Author: efiso <efisofer26@gmail.com>
+Date:   Tue Mar 27 12:13:22 2018 +0300
+
+    changed the service onStart method, now the service starts and i managed to start debugging
+
+commit ec79b5adb7be793fc179948cf3514474ab58886f
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 22:08:16 2018 +0300
+
+    modified some unimplemented methods
+
+commit 5bf815fff12732749a592f9dc1c8e2604fa4fe60
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 21:22:35 2018 +0300
+
+    added the writing into the log file after command is apllied
+
+commit b7bba6df52f6cf8bde6df55e3aee49390519cd4e
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 21:03:02 2018 +0300
+
+    modified the add file implementation, still not perfect. need to check it on a real folder to understand what need to be changed.
+
+commit c813ef6b5318a99dcdaaefadc93d1b43a67827dd
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 17:18:22 2018 +0300
+
+    added configuration context parameters and updated in the service ctor and also in the image modal
+
+commit 0a2d7845a7987e97e8e3d71aca551303bd97eef8
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 16:27:36 2018 +0300
+
+    added the logging the handler and updated the server accordingly (since it creates it)
+
+commit 307352491be99871d906b24b03d9a4108fe47846
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 16:17:23 2018 +0300
+
+    implemented the execute command (check if it's the handler's path and if so execute the command. if it's closing command invoke the event and close the file watcher)
+
+commit 3348db38ec881d2f57b40469a1c0c84ba5057118
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 15:43:00 2018 +0300
+
+    added command file of closing command,
+    implemented the dictionary items in the controller and the execute command in the controller using task.
+
+commit 607df2f6cdec45a4d962cbf9e7d7f8638db5a16f
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 15:09:09 2018 +0300
+
+    fixed some errors after buliding and added some more methods from the file structure given
+
+commit 03368fac119d92812a5086fc174558aa0c6722d9
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 14:14:18 2018 +0300
+
+    added some methods:
+    *in the server - the OnClose: invokes the event and removes the listeners
+    create the controller and logger and give the controlelr to the handler in the ctror
+    * in image controller updated the inheritance relationship
+    * in directory handler - updated the ctor
+
+commit 4771f3d557c736e426ea01345a4e6f4180d2501e
+Author: efiso <efisofer26@gmail.com>
+Date:   Mon Mar 26 13:15:21 2018 +0300
+
+    accommodate the clases according to te files given
+
+commit f49696e120c7396c578c1bb1d1a86302a46a5d00
+Author: efiso <efisofer26@gmail.com>
+Date:   Sun Mar 25 14:19:07 2018 +0300
+
+    fixed the registering to the event of the logger
+
+commit 39ea2a8bc26819bb03ec4f0bfa34b9433dda73b8
+Author: efiso <efisofer26@gmail.com>
+Date:   Sun Mar 25 12:42:23 2018 +0300
+
+    after clearing the image service ctor and other methods such as OnStart
+
+commit 8d0e22d22250204aeb5102bbc599bc767473df04
+Author: efiso <efisofer26@gmail.com>
+Date:   Sun Mar 25 12:38:48 2018 +0300
+
+    changed some files,
+    before deleting the content from the ctor in the image service and on start (they contain the content from the guide).
+    build finished successfully.
+
+commit 5ca5f48f1a0eddfcafc519d3ce1fe492d8233449
+Author: efiso <efisofer26@gmail.com>
+Date:   Sat Mar 24 22:39:10 2018 +0300
+
+    fixed some errors after build (name space was needed to changed and thus some other changes in other files)
+
+commit 0e9eec76d91231d360f94b65a46726d5086e595f
+Author: efiso <efisofer26@gmail.com>
+Date:   Sat Mar 24 22:28:16 2018 +0300
+
+    added folders as given in the instructions, not implemented yet.
+
+commit 5c21a34854ffd2443774265a694ffd3ff10801e1
+Author: efiso <efisofer26@gmail.com>
+Date:   Sat Mar 24 15:40:45 2018 +0300
+
+    Add project files.
+
+commit 986bf58b7e2dc102c48b88b090a949d92e35cc41
+Author: efiso <efisofer26@gmail.com>
+Date:   Sat Mar 24 15:40:42 2018 +0300
+
+    Add .gitignore and .gitattributes.

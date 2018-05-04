@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,13 +38,19 @@ namespace ImageService.Server
         /// Occurs when a command recieved.
         /// </summary>
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
+        private int port;
+        private String IP;
+        private TcpListener listener;
+        private IClientHandler ch;
         #endregion
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
         /// <param name="l">The logging service</param>
-        public ImageServer(ILoggingService l)
+        public ImageServer(ILoggingService l, String ip, int p)
         {
+            this.port = p;
+            this.IP = ip;
             //thr logger of the service
             this.logging = l;
             //create image model
@@ -60,6 +68,8 @@ namespace ImageService.Server
                     this.CreateHandlerForFolder(folder);
                 }
             }
+            //start listening
+            this.Start();
           //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
         /// <summary>
@@ -94,5 +104,24 @@ namespace ImageService.Server
             //register the handler to the event of command recieved 
             this.CommandRecieved += this.handler.Last().OnCommand;
         }
+        public void Start()
+        {
+            IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.IP), this.port);
+            listener = new TcpListener(ep);
+            listener.Start();
+            Console.WriteLine("Waiting for connections...");
+            Task task = new Task(() => 
+            { while (true) {
+                    try { TcpClient client = listener.AcceptTcpClient();
+                        Console.WriteLine("Got new connection");
+                       // ch.HandleClient(client);
+                    } catch (SocketException)
+                    { break; }
+                }
+                Console.WriteLine("Server stopped"); });
+            task.Start();
+        }
+
+        public void Stop() { listener.Stop(); }
     }
 }
