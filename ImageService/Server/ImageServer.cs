@@ -69,8 +69,10 @@ namespace ImageService.Server
                 }
             }
             //start listening
+            System.Diagnostics.Debugger.Launch();
             this.Start();
-          //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
+            //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
         /// <summary>
         /// Raises the Close event.
@@ -109,6 +111,7 @@ namespace ImageService.Server
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.IP), this.port);
             listener = new TcpListener(ep);
             listener.Start();
+            this.logging.Log("before start listening", MessageTypeEnum.INFO);
             Console.WriteLine("Waiting for connections...");
             Task task = new Task(() => 
             { while (true) {
@@ -120,6 +123,7 @@ namespace ImageService.Server
                 }
                 Console.WriteLine("Server stopped"); });
             task.Start();
+            this.logging.Log("after start listening", MessageTypeEnum.INFO);
         }
 
         public void Stop() { listener.Stop(); }

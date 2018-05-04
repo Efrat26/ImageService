@@ -328,6 +328,14 @@ namespace ImageService.Modal
             //file is not locked
             return false;
         }
+        public String GetAppconfig()
+        {
+            return null;
+        }
+        public String LogCommand()
+        {
+            return null;
+        }
         #endregion
     }
 }
