@@ -32,8 +32,8 @@ namespace ImageService.Controller
             {
                 // For Now will contain NEW_FILE_COMMAND
                 {(int)CommandEnum.NewFileCommand, new NewFileCommand(this.modal)},
-                {(int)CommandEnum.NewFileCommand, new GetConfigCommand(this.modal)},
-                {(int)CommandEnum.NewFileCommand, new LogCommand(this.modal)},
+                {(int)CommandEnum.GetConfigCommand, new GetConfigCommand(this.modal)},
+                {(int)CommandEnum.LogCommand, new LogCommand(this.modal)},
                 { (int)CommandEnum.CloseCommand, new CloseCommand(this.modal)}
             };
         }

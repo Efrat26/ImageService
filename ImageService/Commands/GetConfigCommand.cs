@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ImageService.Commands
 {
-    class GetConfigCommand : ICommand
+    public class GetConfigCommand : ICommand
     {
         /// <summary>
         /// The modal that does the operation

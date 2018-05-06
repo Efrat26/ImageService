@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ImageService.AppConfigObjects
 {
-    class ImageServiceAppConfigItem
+    public class ImageServiceAppConfigItem
     {
         private String outputFolder;
         public String OutputFolder { get { return this.outputFolder; } set { this.outputFolder = value; } }

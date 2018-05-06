@@ -53,6 +53,7 @@ namespace ImageService.Server
         /// <param name="l">The logging service</param>
         public ImageServer(ILoggingService l, String ip, int p)
         {
+            this.ch = new ImageServiceClientHandler();
             this.port = p;
             this.IP = ip;
             //thr logger of the service
@@ -74,7 +75,7 @@ namespace ImageService.Server
             }
             //start listening
             System.Diagnostics.Debugger.Launch();
-            this.Start();
+           // this.Start();
             this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
             //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
@@ -119,18 +120,10 @@ namespace ImageService.Server
             Console.WriteLine("Waiting for connections...");
             Task task = new Task(() => 
             { while (true) {
-                    try { TcpClient client = listener.AcceptTcpClient();
+                    try {
+                        TcpClient client = listener.AcceptTcpClient();
                         Console.WriteLine("Got new connection");
-                        if (!clients.Contains(client))
-                        {
-                            controller.ExecuteCommand((int)CommandEnum.GetConfigCommand, null, out bool result);
-                            clients.Add(client);
-                        }
-                        else
-                        {
-
-                        }
-                       // ch.HandleClient(client);
+                       ch.HandleClient(client);
                     } catch (SocketException)
                     { break; }
                 }
