@@ -9,20 +9,26 @@ using System.Threading.Tasks;
 namespace ImageService.Server
 {
     class ClientHandler : IClientHandler
+
     {
+        private NetworkStream stream;
+        private StreamReader reader;
+        private StreamWriter writer;
         public void HandleClient(TcpClient client)
         {
-            new Task(() => 
-            { using (NetworkStream stream = client.GetStream())
-                using (StreamReader reader = new StreamReader(stream))
-                using (StreamWriter writer = new StreamWriter(stream))
-                {
-                    string commandLine = reader.ReadLine();
-                    Console.WriteLine("Got command: {0}", commandLine);
-                    //string result = ExecuteCommand(commandLine, client);
-                    //writer.Write(result);
-                }
-                    client.Close(); }).Start();
+            stream = client.GetStream();
+            reader = new StreamReader(stream);
+            writer = new StreamWriter(stream);
+            new Task(() =>
+            {
+                System.Diagnostics.Debugger.Launch();
+                string commandLine = reader.ReadLine();
+                Console.WriteLine("Got command: {0}", commandLine);
+                //string result = ExecuteCommand(commandLine, client);
+                //writer.Write(result);
+
+                client.Close();
+            }).Start();
         }
 
     }

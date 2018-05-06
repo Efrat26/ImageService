@@ -74,8 +74,8 @@ namespace ImageService.Server
                 }
             }
             //start listening
-            System.Diagnostics.Debugger.Launch();
-           // this.Start();
+            //System.Diagnostics.Debugger.Launch();
+           this.Start();
             this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
             //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
@@ -118,12 +118,18 @@ namespace ImageService.Server
             listener.Start();
             this.logging.Log("before start listening", MessageTypeEnum.INFO);
             Console.WriteLine("Waiting for connections...");
+            Boolean stop = false;
             Task task = new Task(() => 
-            { while (true) {
-                    try {
+            { while (!stop) {
+                    try
+                    {
                         TcpClient client = listener.AcceptTcpClient();
                         Console.WriteLine("Got new connection");
-                       ch.HandleClient(client);
+                        this.logging.Log("Got new connection", MessageTypeEnum.INFO);
+                        System.Diagnostics.Debugger.Launch();
+                        if (!client.Connected) { client.Connect(ep); }
+                        ch.HandleClient(client);
+                           
                     } catch (SocketException)
                     { break; }
                 }
