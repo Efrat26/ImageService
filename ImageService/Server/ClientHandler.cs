@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ImageService.Server
 {
-    class ClientHandler : IClientHandler
+    public class ClientHandler : IClientHandler
 
     {
         private NetworkStream stream;
@@ -19,6 +19,7 @@ namespace ImageService.Server
             stream = client.GetStream();
             reader = new StreamReader(stream);
             writer = new StreamWriter(stream);
+            /*
             new Task(() =>
             {
                 System.Diagnostics.Debugger.Launch();
@@ -30,6 +31,7 @@ namespace ImageService.Server
                 client.Close();
             }).Start();
         }
-
+        */
+        }
     }
 }

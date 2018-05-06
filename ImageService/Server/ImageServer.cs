@@ -126,14 +126,14 @@ namespace ImageService.Server
                         TcpClient client = listener.AcceptTcpClient();
                         Console.WriteLine("Got new connection");
                         this.logging.Log("Got new connection", MessageTypeEnum.INFO);
-                        System.Diagnostics.Debugger.Launch();
-                        if (!client.Connected) { client.Connect(ep); }
+                        //System.Diagnostics.Debugger.Launch();
+                       // if (!client.Connected) { client.Connect(ep); }
                         ch.HandleClient(client);
                            
                     } catch (SocketException)
                     { break; }
                 }
-                Console.WriteLine("Server stopped"); });
+                this.logging.Log("Server stopped",MessageTypeEnum.INFO); });
             task.Start();
             this.logging.Log("after start listening", MessageTypeEnum.INFO);
         }

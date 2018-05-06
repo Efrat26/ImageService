@@ -11,22 +11,22 @@ namespace ImageService.Server
     public class ImageServiceClientHandler : IClientHandler
     {
         private NetworkStream stream;
-        private StreamReader reader;
-        private StreamWriter writer;
+        private BinaryReader reader;
+        private BinaryWriter writer;
         public void HandleClient(TcpClient client)
         {
             stream = client.GetStream();
-            reader = new StreamReader(stream);
-            writer = new StreamWriter(stream);
+            reader = new BinaryReader(stream);
+            writer = new BinaryWriter(stream);
             new Task(() =>
             {
                 System.Diagnostics.Debugger.Launch();
-                string commandLine = reader.ReadLine();
+                string commandLine = reader.ReadString();
                 Console.WriteLine("Got command: {0}", commandLine);
                 //string result = ExecuteCommand(commandLine, client);
                 writer.Write("what a wonderful day");
 
-                client.Close();
+               // client.Close();
             }).Start();
         }
     }
