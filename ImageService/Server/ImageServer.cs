@@ -14,7 +14,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.Commands;
 
 namespace ImageService.Server
@@ -53,13 +52,15 @@ namespace ImageService.Server
         /// <param name="l">The logging service</param>
         public ImageServer(ILoggingService l, String ip, int p)
         {
-            this.ch = new ImageServiceClientHandler();
             this.port = p;
             this.IP = ip;
             //thr logger of the service
             this.logging = l;
             //create image model
             this.controller = new ImageController(new ImageServiceModal(l));
+            //set the client handler
+            this.ch = new ImageServiceClientHandler();
+            this.ch.SetController(this.controller);
             //initialize handlers list
             this.handler = new List<IDirectoryHandler>();
             //create the handler and sign the onClose method to the event

@@ -9,7 +9,7 @@ namespace ImageService.Controller
     /// <summary>
     /// interface for an image controller object
     /// </summary>
-    interface IImageController
+    public interface IImageController
     {
         /// <summary>
         /// Executes the command specified by ID.

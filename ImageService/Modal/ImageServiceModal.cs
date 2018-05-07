@@ -337,6 +337,7 @@ namespace ImageService.Modal
                 ConfigurationManager.AppSettings.Get("SourceName").ToString(),
                 ConfigurationManager.AppSettings.Get("LogName").ToString(),
                 Convert.ToInt32((ConfigurationManager.AppSettings.Get("ThumbnailSize")).ToString()));
+            
             return configuration.ToJSON();
         }
         public String LogCommand()

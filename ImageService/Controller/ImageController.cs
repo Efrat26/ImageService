@@ -46,20 +46,23 @@ namespace ImageService.Controller
         /// <returns></returns>
         public string ExecuteCommand(int commandID, string[] args, out bool resultSuccesful)
         {
-            bool result;
+            bool res;
+            String operationResult, result;
             //this.commands[commandID].Execute(args, out result);
-            Task<bool> t = new Task<bool>(() =>
-            {Task.Delay(1000); this.commands[commandID].Execute(args, out result);return result; });
+            Task<String> t = new Task<String>(() =>
+            {Task.Delay(1000); operationResult = this.commands[commandID].Execute(args, out res);return operationResult; });
             t.Start();
             //t.Wait();
             //wait for the result from the task and return a boolean accordingly
-            resultSuccesful = t.Result;
-            if (resultSuccesful)
+            result = t.Result;
+            if (!result.Equals(ResultMessgeEnum.Fail.ToString()))
             {
-                return ResultMessgeEnum.Success.ToString();
+                resultSuccesful = true;
+                return result;
             }
             else
             {
+                resultSuccesful = false;
                 return ResultMessgeEnum.Fail.ToString();
             }
         }

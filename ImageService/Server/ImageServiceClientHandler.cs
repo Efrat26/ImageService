@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageService.Controller;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace ImageService.Server
         private NetworkStream stream;
         private BinaryReader reader;
         private BinaryWriter writer;
+        private IImageController controller;
         public void HandleClient(TcpClient client)
         {
             stream = client.GetStream();
@@ -23,11 +25,27 @@ namespace ImageService.Server
                 System.Diagnostics.Debugger.Launch();
                 string commandLine = reader.ReadString();
                 Console.WriteLine("Got command: {0}", commandLine);
+                
+                String result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out bool res);
+                if (res)
+                {
+                    writer.Write(result);
+                }
+                else
+                {
+                    writer.Write("failed");
+                }
+                
                 //string result = ExecuteCommand(commandLine, client);
-                writer.Write("what a wonderful day");
+                //writer.Write("what a wonderful day");
 
                // client.Close();
             }).Start();
+        }
+
+        public void SetController(IImageController c)
+        {
+            this.controller = c;
         }
     }
 }
