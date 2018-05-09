@@ -17,5 +17,6 @@ namespace ImageService.Modal
 
         String GetAppconfig();
         String LogCommand();
+        String UpdateConfiguration(string[] args)
     }
 }

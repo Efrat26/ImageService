@@ -34,6 +34,7 @@ namespace ImageService.Modal
         /// i prefered to add it to here for easier debugging.
         /// </summary>
         private ILoggingService log;
+        #endregion
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageServiceModal"/> class.
         /// takes the path to the output folder & thumnail folder
@@ -344,6 +345,21 @@ namespace ImageService.Modal
         {
             return null;
         }
-        #endregion
+       public String UpdateConfiguration(string[] args)
+        {
+            // Open App.Config of executable
+            System.Configuration.Configuration config =
+              ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            if (!args[0].Equals("handlers"))
+            {
+                // Add an Application Setting.
+                config.AppSettings.Settings.Add(args[0], args[1]);
+                // Save the configuration file.
+                config.Save(ConfigurationSaveMode.Modified, true);
+                // Force a reload of a changed section.
+                ConfigurationManager.RefreshSection("appSettings");
+            }
+            return ResultMessgeEnum.Success.ToString();
+        }
     }
 }
