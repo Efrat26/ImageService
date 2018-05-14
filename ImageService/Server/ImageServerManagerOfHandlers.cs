@@ -1,5 +1,6 @@
 ﻿using ImageService.Controller;
 using ImageService.Controller.Handlers;
+using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.ImageService.Logging;
 using ImageService.Modal.Event;
 using System;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace ImageService.Server
 {
     //a class that is responsible of the the handlers
-    public class ImageServerHandlerOfHandler : IHandlerOfHandler
+    public class ImageServerManagerOfHandlers : IManagerOfHandlers
     {
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         ILoggingService log;
@@ -21,7 +22,7 @@ namespace ImageService.Server
         /// a list with handlers
         /// </summary>
         private List<IDirectoryHandler> handler;
-        public ImageServerHandlerOfHandler(ILoggingService l, IImageController c)
+        public ImageServerManagerOfHandlers(ILoggingService l, IImageController c)
         {
             this.log = l;
             this.controller = c;
@@ -48,17 +49,33 @@ namespace ImageService.Server
 
             //create the handler and sign the onClose method to the event
             this.handler.Add(new DirectoyHandler(path, this.controller, this.log));
-            this.handler.Last().DirectoryClose += this.OnClose;
+            this.handler.Last().DirectoryClose += this.OnCloseDirectory;
             //register the handler to the event of command recieved 
             this.CommandRecieved += this.handler.Last().OnCommand;
         }
-        public void OnClose(object sender, DirectoryCloseEventArgs e)
+        public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
         {
             //remove the methods that signed to the events
             foreach (IDirectoryHandler handler in this.handler)
             {
-                this.CommandRecieved -= handler.OnCommand;
-                handler.DirectoryClose -= this.OnClose;
+                if (handler.Path.Equals(e.DirectoryPath))
+                {
+                    this.CommandRecieved -= handler.OnCommand;
+                    handler.DirectoryClose -= this.OnCloseDirectory;
+                    break;
+                }
+            }
+        }
+        public void OnCommandRecieved(object sender, CommandRecievedEventArgs e)
+        {
+            //remove the methods that signed to the events
+            if (e.CommandID == (int)CommandEnum.CloseCommand)
+            {
+                foreach (IDirectoryHandler handler in this.handler)
+                {
+                    this.CommandRecieved -= handler.OnCommand;
+                    handler.DirectoryClose -= this.OnCloseDirectory;
+                }
             }
         }
     }

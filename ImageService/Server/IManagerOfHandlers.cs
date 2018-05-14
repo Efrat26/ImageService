@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace ImageService.Server
 {
-    public interface IHandlerOfHandler
+    public interface IManagerOfHandlers
     {
         event EventHandler<CommandRecievedEventArgs> CommandRecieved;
-        void OnClose(object sender, DirectoryCloseEventArgs e);
+        void OnCloseDirectory(object sender, DirectoryCloseEventArgs e);
+        void OnCommandRecieved(object sender, CommandRecievedEventArgs e);
     }
 }

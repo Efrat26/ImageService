@@ -1,4 +1,5 @@
 ﻿using ImageService.Controller;
+using ImageService.Controller.Handlers;
 using ImageService.ImageService.Infrastructure.Enums;
 using ImageService.ImageService.Logging;
 using ImageService.Modal.Event;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using ImageService.ImageService.Logging.Modal;
 
 namespace ImageService.Server
 {
@@ -18,7 +20,7 @@ namespace ImageService.Server
         private BinaryReader reader;
         private BinaryWriter writer;
         private IImageController controller;
-        private IHandlerOfHandler handler;
+        private IManagerOfHandlers handler;
         private ILoggingService log;
 
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
@@ -28,7 +30,9 @@ namespace ImageService.Server
         {
             this.controller = c;
             this.log = l;
-            this.handler = new ImageServerHandlerOfHandler(l, c);
+            this.handler = new ImageServerManagerOfHandlers(l, c);
+            this.CloseCommand += this.handler.OnClose;
+            this.CommandRecieved += this.handler.OnCommandRecieved;
         }
         public void HandleClient(TcpClient client)
         {
@@ -37,11 +41,36 @@ namespace ImageService.Server
             writer = new BinaryWriter(stream);
             new Task(() =>
             {
+                int commandNum;
+                bool res;
+                String result = null;
                 System.Diagnostics.Debugger.Launch();
                 string commandLine = reader.ReadString();
                 Console.WriteLine("Got command: {0}", commandLine);
+                try
+                {
+                    commandNum = Int32.Parse(commandLine);
+                    if (commandNum == (int)CommandEnum.CloseHandler)
+                    {
+                        this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
+                        HandlerToClose h = HandlerToClose.FromJSON(commandLine);
+                        this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
+                        res = true;
+
+                    }
+                    else
+                    {
+                        this.log.Log("command number " + commandNum.ToString() +" recieved", MessageTypeEnum.INFO);
+                        result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out res);
+                    }
+                }
+                catch (Exception)
+                {
+                    res = false;
+                    result = null;
+                }
                 
-                String result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out bool res);
+
                 if (res)
                 {
                     writer.Write(result);
@@ -50,11 +79,6 @@ namespace ImageService.Server
                 {
                     writer.Write("failed");
                 }
-                
-                //string result = ExecuteCommand(commandLine, client);
-                //writer.Write("what a wonderful day");
-
-               // client.Close();
             }).Start();
         }
 
@@ -68,16 +92,12 @@ namespace ImageService.Server
         // the command the server can recieve is close command
         public void OnCommandRecieved(object sender, CommandRecievedEventArgs e)
         {
-            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand, null,null));
+            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand, null, null));
         }
-        public void OnCommandRecieved(object sender, DirectoryCloseEventArgs e)
-        {
-
-        }
-
+        //close specific directory
         public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
         {
-            throw new NotImplementedException();
+            this.CloseCommand(this, e);
         }
     }
 }

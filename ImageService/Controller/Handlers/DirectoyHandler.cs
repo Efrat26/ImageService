@@ -34,6 +34,8 @@ namespace ImageService.Controller.Handlers
         #endregion
         // The Event That Notifies that the Directory is being closed
         public event EventHandler<DirectoryCloseEventArgs> DirectoryClose;
+
+        public String Path { get { return this.path; } set {path = value; } }
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectoyHandler"/> class.
         /// </summary>

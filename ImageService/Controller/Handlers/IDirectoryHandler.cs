@@ -14,7 +14,7 @@ namespace ImageService.Controller.Handlers
     interface IDirectoryHandler
     {
         // The Event That Notifies that the Directory is being closed
-        event EventHandler<DirectoryCloseEventArgs> DirectoryClose;       
+        event EventHandler<DirectoryCloseEventArgs> DirectoryClose;
         /// <summary>
         /// Executes the command specified by command ID.
         /// </summary>
@@ -38,5 +38,6 @@ namespace ImageService.Controller.Handlers
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
         void OnNewFile(object sender, FileSystemEventArgs e);
+        String Path { get; set; }
     }
 }
