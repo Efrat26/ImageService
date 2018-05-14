@@ -30,10 +30,6 @@ namespace ImageService.Server
         /// </summary>
         private ImageService.Logging.ILoggingService logging;
         /// <summary>
-        /// a list with handlers
-        /// </summary>
-        private List<IDirectoryHandler> handler;
-
         private List<TcpClient> clients;
         #endregion
         #region Properties     
@@ -41,6 +37,7 @@ namespace ImageService.Server
         /// Occurs when a command recieved.
         /// </summary>
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
+        public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
         private int port;
         private String IP;
         private TcpListener listener;
@@ -59,21 +56,10 @@ namespace ImageService.Server
             //create image model
             this.controller = new ImageController(new ImageServiceModal(l));
             //set the client handler
-            this.ch = new ImageServiceClientHandler();
-            this.ch.SetController(this.controller);
-            //initialize handlers list
-            this.handler = new List<IDirectoryHandler>();
-            //create the handler and sign the onClose method to the event
-            string folderToListen = ConfigurationManager.AppSettings.Get("Handler");
-            string[] folders = folderToListen.Split(';');
-            //create handlers for each folder:
-            foreach (string folder in folders)
-            {
-                if (Directory.Exists(folder))
-                {
-                    this.CreateHandlerForFolder(folder);
-                }
-            }
+            this.ch = new ImageServiceClientHandler(logging, controller);
+            //this.ch.SetController(this.controller);
+            this.CommandRecieved += this.ch.OnCommandRecieved;
+            
             //start listening
             //System.Diagnostics.Debugger.Launch();
            this.Start();
@@ -90,28 +76,9 @@ namespace ImageService.Server
             this.logging.Log("in on close of server", MessageTypeEnum.INFO);
           // 
             this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand,null,null));
-            this.logging.Log("after closing handlers", MessageTypeEnum.INFO);
-            //remove the methods that signed to the events
-            foreach (IDirectoryHandler handler in this.handler)
-            {
-                this.CommandRecieved -= handler.OnCommand;
-                handler.DirectoryClose -= this.OnClose;
-            }
-            
+            this.logging.Log("after closing handlers", MessageTypeEnum.INFO);      
         }
-        /// <summary>
-        /// Creates the handlers for folders defined in the app config.
-        /// </summary>
-        /// <param name="path">The path.</param>
-        public void CreateHandlerForFolder(string path)
-        {
-           
-            //create the handler and sign the onClose method to the event
-            this.handler.Add( new DirectoyHandler(path, this.controller, this.logging));
-            this.handler.Last().DirectoryClose += this.OnClose;
-            //register the handler to the event of command recieved 
-            this.CommandRecieved += this.handler.Last().OnCommand;
-        }
+       
         public void Start()
         {
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.IP), this.port);

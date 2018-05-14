@@ -1,4 +1,7 @@
 ﻿using ImageService.Controller;
+using ImageService.ImageService.Infrastructure.Enums;
+using ImageService.ImageService.Logging;
+using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +18,18 @@ namespace ImageService.Server
         private BinaryReader reader;
         private BinaryWriter writer;
         private IImageController controller;
+        private IHandlerOfHandler handler;
+        private ILoggingService log;
+
+        public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
+        public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
+
+        public ImageServiceClientHandler(ILoggingService l, IImageController c)
+        {
+            this.controller = c;
+            this.log = l;
+            this.handler = new ImageServerHandlerOfHandler(l, c);
+        }
         public void HandleClient(TcpClient client)
         {
             stream = client.GetStream();
@@ -45,7 +60,24 @@ namespace ImageService.Server
 
         public void SetController(IImageController c)
         {
-            this.controller = c;
+            if (this.controller == null)
+            {
+                this.controller = c;
+            }
+        }
+        // the command the server can recieve is close command
+        public void OnCommandRecieved(object sender, CommandRecievedEventArgs e)
+        {
+            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand, null,null));
+        }
+        public void OnCommandRecieved(object sender, DirectoryCloseEventArgs e)
+        {
+
+        }
+
+        public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

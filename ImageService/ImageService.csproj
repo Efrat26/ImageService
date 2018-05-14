@@ -91,7 +91,9 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server\IClientHandler.cs" />
+    <Compile Include="Server\IHandlerOfHandler.cs" />
     <Compile Include="Server\ImageServer.cs" />
+    <Compile Include="Server\ImageServerHandlerOfHandler.cs" />
     <Compile Include="Server\ImageServiceClientHandler.cs" />
     <Compile Include="Server\IServer.cs" />
   </ItemGroup>

@@ -16,5 +16,8 @@ namespace ImageService.Server
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="DirectoryCloseEventArgs"/> instance containing the event data.</param>
         void OnClose(object sender, DirectoryCloseEventArgs e);
+
+        event EventHandler<CommandRecievedEventArgs> CommandRecieved;
+        
     }
 }
