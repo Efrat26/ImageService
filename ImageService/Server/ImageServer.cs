@@ -38,6 +38,7 @@ namespace ImageService.Server
         /// </summary>
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
+        public event EventHandler<MessageRecievedEventArgs> LogMessageRecieved;
         private int port;
         private String IP;
         private TcpListener listener;
@@ -59,10 +60,10 @@ namespace ImageService.Server
             this.ch = new ImageServiceClientHandler(logging, controller);
             //this.ch.SetController(this.controller);
             this.CommandRecieved += this.ch.OnCommandRecieved;
-            
+            this.LogMessageRecieved += this.ch.OnLogMessageRecieved;
             //start listening
             //System.Diagnostics.Debugger.Launch();
-           this.Start();
+            this.Start();
             this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
             //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
@@ -74,11 +75,11 @@ namespace ImageService.Server
         public void OnClose(object sender, DirectoryCloseEventArgs e)
         {
             this.logging.Log("in on close of server", MessageTypeEnum.INFO);
-          // 
-            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand,null,null));
-            this.logging.Log("after closing handlers", MessageTypeEnum.INFO);      
+            // 
+            this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseCommand, null, null));
+            this.logging.Log("after closing handlers", MessageTypeEnum.INFO);
         }
-       
+
         public void Start()
         {
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.IP), this.port);
@@ -87,25 +88,33 @@ namespace ImageService.Server
             this.logging.Log("before start listening", MessageTypeEnum.INFO);
             Console.WriteLine("Waiting for connections...");
             Boolean stop = false;
-            Task task = new Task(() => 
-            { while (!stop) {
+            Task task = new Task(() =>
+            {
+                while (!stop)
+                {
                     try
                     {
                         TcpClient client = listener.AcceptTcpClient();
                         Console.WriteLine("Got new connection");
                         this.logging.Log("Got new connection", MessageTypeEnum.INFO);
                         //System.Diagnostics.Debugger.Launch();
-                       // if (!client.Connected) { client.Connect(ep); }
+                        // if (!client.Connected) { client.Connect(ep); }
                         ch.HandleClient(client);
-                           
-                    } catch (SocketException)
+
+                    }
+                    catch (SocketException)
                     { break; }
                 }
-                this.logging.Log("Server stopped",MessageTypeEnum.INFO); });
+                this.logging.Log("Server stopped", MessageTypeEnum.INFO);
+            });
             task.Start();
             this.logging.Log("after start listening", MessageTypeEnum.INFO);
         }
 
         public void Stop() { listener.Stop(); }
+        public void OnMessage(object sender, MessageRecievedEventArgs e)
+        {
+            this.LogMessageRecieved?.Invoke(this, e);
+        }
     }
 }

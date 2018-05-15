@@ -1,4 +1,5 @@
-﻿using ImageService.Modal.Event;
+﻿using ImageService.ImageService.Logging.Modal;
+using ImageService.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace ImageService.Server
         void OnClose(object sender, DirectoryCloseEventArgs e);
 
         event EventHandler<CommandRecievedEventArgs> CommandRecieved;
-        
+        void OnMessage(object sender, MessageRecievedEventArgs e);
+        event EventHandler<MessageRecievedEventArgs> LogMessageRecieved;
     }
 }

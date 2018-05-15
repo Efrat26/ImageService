@@ -105,7 +105,8 @@ namespace ImageService1
             this.log.MessageRecieved += OnMessage;
             this.server = new ImageServer(this.log, "127.0.0.1", 8000);
             this.ServiceClose += this.server.OnClose;
-            this.log.Log("Hello frm service", MessageTypeEnum.INFO);
+            this.log.MessageRecieved += this.server.OnMessage;
+            this.log.Log("Hello from service", MessageTypeEnum.INFO);
         }
         /// <summary>
         /// Called when a message was recieved.

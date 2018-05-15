@@ -22,7 +22,7 @@ namespace ImageService.Server
         private IImageController controller;
         private IManagerOfHandlers handler;
         private ILoggingService log;
-
+        private List<LogMessage> logMessages;
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
 
@@ -33,6 +33,7 @@ namespace ImageService.Server
             this.handler = new ImageServerManagerOfHandlers(l, c);
             this.CloseCommand += this.handler.OnCloseDirectory;
             this.CommandRecieved += this.handler.OnCommandRecieved;
+            this.logMessages = new List<LogMessage>();
         }
         public void HandleClient(TcpClient client)
         {
@@ -107,6 +108,12 @@ namespace ImageService.Server
         public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
         {
             this.CloseCommand(this, e);
+        }
+
+        public void OnLogMessageRecieved(object sender, MessageRecievedEventArgs e)
+        {
+            this.logMessages.Add(new LogMessage(e.Message, e.Status));
+            //write to the client
         }
     }
 }

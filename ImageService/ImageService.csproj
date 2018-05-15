@@ -78,6 +78,7 @@
     <Compile Include="ImageService.Infrastructure\Enums\ResultMessgeEnum.cs" />
     <Compile Include="ImageService.Logging\ILoggingService.cs" />
     <Compile Include="ImageService.Logging\LoggingService.cs" />
+    <Compile Include="ImageService.Logging\LogMessage.cs" />
     <Compile Include="ImageService.Logging\Modal\MessageRecievedEventArgs.cs" />
     <Compile Include="ImageService.Logging\Modal\MessageTypeEnum.cs" />
     <Compile Include="Modal\Event\CommandRecievedEventArgs.cs" />
