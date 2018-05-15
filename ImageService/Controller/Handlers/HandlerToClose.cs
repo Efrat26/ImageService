@@ -11,6 +11,10 @@ namespace ImageService.Controller.Handlers
     {
         private string path;
         public string Path { get { return this.path; } set { this.path = value; } }
+        public HandlerToClose(String p)
+        {
+            this.path = p;
+        }
         public string ToJSON()
         {
             JObject appConfigItem = new JObject();
@@ -19,7 +23,7 @@ namespace ImageService.Controller.Handlers
         }
         public static HandlerToClose FromJSON(string str)
         {
-            HandlerToClose handlerObj = new HandlerToClose();
+            HandlerToClose handlerObj = new HandlerToClose(null);
             JObject handlerObjItem = JObject.Parse(str);
             handlerObj.path = (string)handlerObjItem["path"];
             return handlerObj;

@@ -35,7 +35,7 @@ namespace ImageService.Controller.Handlers
         // The Event That Notifies that the Directory is being closed
         public event EventHandler<DirectoryCloseEventArgs> DirectoryClose;
 
-        public String Path { get { return this.path; } set {path = value; } }
+        public String FullPath { get { return this.path; } set {path = value; } }
         /// <summary>
         /// Initializes a new instance of the <see cref="DirectoyHandler"/> class.
         /// </summary>
@@ -99,8 +99,8 @@ namespace ImageService.Controller.Handlers
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {
             this.logging.Log("in on command of handler", MessageTypeEnum.INFO);
-            // System.Diagnostics.Debugger.Launch();
-            if (e.CommandID == (int)CommandEnum.CloseCommand)
+             System.Diagnostics.Debugger.Launch();
+            if (e.CommandID == (int)CommandEnum.CloseCommand && e.RequestDirPath == null)
             {
                 this.dirWatcher.Changed -= this.OnNewFile;
                 try
@@ -113,7 +113,23 @@ namespace ImageService.Controller.Handlers
                     this.logging.Log("error while closing the File System Watcher",MessageTypeEnum.INFO );
                 }
                 //notify every one that signed to the event about the service being closed
-                this.DirectoryClose?.Invoke(this, null);
+               // this.DirectoryClose?.Invoke(this, new DirectoryCloseEventArgs(e.RequestDirPath,null));
+                this.logging.Log("file system watch closed", MessageTypeEnum.INFO);
+                //closing specific handler
+            } else if((e.CommandID == (int)CommandEnum.CloseHandler && e.RequestDirPath.Equals(this.path)))
+            {
+                this.dirWatcher.Changed -= this.OnNewFile;
+                try
+                {
+                    this.dirWatcher.EnableRaisingEvents = false;
+                    this.dirWatcher.Dispose();
+                }
+                catch (Exception)
+                {
+                    this.logging.Log("error while closing the File System Watcher", MessageTypeEnum.INFO);
+                }
+                //notify every one that signed to the event about the service being closed
+                //this.DirectoryClose?.Invoke(this, new DirectoryCloseEventArgs(e.RequestDirPath, null));
                 this.logging.Log("file system watch closed", MessageTypeEnum.INFO);
             }
             else

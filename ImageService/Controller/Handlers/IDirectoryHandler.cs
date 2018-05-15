@@ -38,6 +38,6 @@ namespace ImageService.Controller.Handlers
         /// <param name="sender">The sender.</param>
         /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
         void OnNewFile(object sender, FileSystemEventArgs e);
-        String Path { get; set; }
+        String FullPath { get; set; }
     }
 }

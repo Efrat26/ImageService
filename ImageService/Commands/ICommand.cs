@@ -18,5 +18,7 @@ namespace ImageService.Commands
         /// and false otherwise.</param>
         /// <returns>string that contains the error message or a success message</returns>
         string Execute(string[] args, out bool result);          // The Function That will Execute The 
+
+        string[] getArgs();
     }
 }

@@ -31,7 +31,7 @@ namespace ImageService.Server
             this.controller = c;
             this.log = l;
             this.handler = new ImageServerManagerOfHandlers(l, c);
-            this.CloseCommand += this.handler.OnClose;
+            this.CloseCommand += this.handler.OnCloseDirectory;
             this.CommandRecieved += this.handler.OnCommandRecieved;
         }
         public void HandleClient(TcpClient client)
@@ -39,45 +39,54 @@ namespace ImageService.Server
             stream = client.GetStream();
             reader = new BinaryReader(stream);
             writer = new BinaryWriter(stream);
+            bool stop = false;
             new Task(() =>
             {
-                int commandNum;
-                bool res;
-                String result = null;
-                System.Diagnostics.Debugger.Launch();
-                string commandLine = reader.ReadString();
-                Console.WriteLine("Got command: {0}", commandLine);
-                try
+                while (!stop)
                 {
-                    commandNum = Int32.Parse(commandLine);
-                    if (commandNum == (int)CommandEnum.CloseHandler)
+                    int commandNum;
+                    bool res;
+                    String result = null;
+                    // System.Diagnostics.Debugger.Launch();
+                    string commandLine = reader.ReadString();
+                    Console.WriteLine("Got command: {0}", commandLine);
+                    this.log.Log("command recieved: " + commandLine, MessageTypeEnum.INFO);
+                    try
                     {
-                        this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
-                        HandlerToClose h = HandlerToClose.FromJSON(commandLine);
-                        this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
-                        res = true;
+                        commandNum = Int32.Parse(commandLine);
+                        if (commandNum == (int)CommandEnum.CloseHandler)
+                        {
+                            // System.Diagnostics.Debugger.Launch();
+                            this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
+                            string handlerJObject = reader.ReadString();
+                            this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
+                            HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
+                            this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
+                            res = true;
+                            result = ResultMessgeEnum.Success.ToString();
 
+                        }
+                        else
+                        {
+                            this.log.Log("command number " + commandNum.ToString() + " recieved", MessageTypeEnum.INFO);
+                            result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out res);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        res = false;
+                        result = null;
+                    }
+
+
+                    if (res)
+                    {
+                        writer.Write(result);
                     }
                     else
                     {
-                        this.log.Log("command number " + commandNum.ToString() +" recieved", MessageTypeEnum.INFO);
-                        result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out res);
+                        writer.Write("failed");
                     }
-                }
-                catch (Exception)
-                {
-                    res = false;
-                    result = null;
-                }
-                
-
-                if (res)
-                {
-                    writer.Write(result);
-                }
-                else
-                {
-                    writer.Write("failed");
                 }
             }).Start();
         }

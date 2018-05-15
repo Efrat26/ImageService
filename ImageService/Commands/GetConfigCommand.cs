@@ -35,5 +35,9 @@ namespace ImageService.Commands
             result = true;
             return configuration;
         }
+        public string[] getArgs()
+        {
+            return null;
+        }
     }
 }

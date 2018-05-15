@@ -69,7 +69,7 @@ namespace ImageService.Controller
         //currently doing nothing
         public void OnCloseOfService(object sender, EventArgs e)
         {
-            
+           
         }
     }
 }

@@ -55,26 +55,46 @@ namespace ImageService.Server
         }
         public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
         {
+            System.Diagnostics.Debugger.Launch();
             //remove the methods that signed to the events
             foreach (IDirectoryHandler handler in this.handler)
             {
-                if (handler.Path.Equals(e.DirectoryPath))
+                if (handler.FullPath.Equals(e.DirectoryPath))
                 {
+                    this.CommandRecieved?.Invoke(this, new CommandRecievedEventArgs((int)CommandEnum.CloseHandler, null, e.DirectoryPath));
                     this.CommandRecieved -= handler.OnCommand;
                     handler.DirectoryClose -= this.OnCloseDirectory;
-                    break;
+                    this.log.Log("removed handler: " + e.DirectoryPath, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                    return;
                 }
             }
+            this.log.Log("could not find any handlers correspond to path: " + e.DirectoryPath,
+                ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
+        //closing of all handlers
         public void OnCommandRecieved(object sender, CommandRecievedEventArgs e)
         {
             //remove the methods that signed to the events
+            System.Diagnostics.Debugger.Launch();
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
+                this.log.Log("closing all handlers",
+                ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 foreach (IDirectoryHandler handler in this.handler)
                 {
                     this.CommandRecieved -= handler.OnCommand;
                     handler.DirectoryClose -= this.OnCloseDirectory;
+                    handler.ExecuteCommand((int)CommandEnum.CloseCommand, null, out bool result);
+                    if (result)
+                    {
+                        this.log.Log("Removed handler successfully, handler: " + handler.FullPath, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                        this.handler.Remove(handler);
+                    }
+                    else
+                    {
+                        this.log.Log("couldn't remove handler: " + handler.FullPath, ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+                    }
+                    
                 }
             }
         }
