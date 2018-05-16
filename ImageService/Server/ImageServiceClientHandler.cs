@@ -25,6 +25,7 @@ namespace ImageService.Server
         private List<LogMessage> logMessages;
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
+        private List<TcpClient> clients;
 
         public ImageServiceClientHandler(ILoggingService l, IImageController c)
         {
@@ -34,9 +35,11 @@ namespace ImageService.Server
             this.CloseCommand += this.handler.OnCloseDirectory;
             this.CommandRecieved += this.handler.OnCommandRecieved;
             this.logMessages = new List<LogMessage>();
+            this.clients = new List<TcpClient>();
         }
         public void HandleClient(TcpClient client)
         {
+            clients.Add(client);
             stream = client.GetStream();
             reader = new BinaryReader(stream);
             writer = new BinaryWriter(stream);
