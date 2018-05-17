@@ -11,22 +11,21 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using ImageService.ImageService.Logging.Modal;
+using System.Threading;
 
 namespace ImageService.Server
 {
     public class ImageServiceClientHandler : IClientHandler
     {
-        private NetworkStream stream;
-        private BinaryReader reader;
-        private BinaryWriter writer;
+        
         private IImageController controller;
         private IManagerOfHandlers handler;
         private ILoggingService log;
         private List<LogMessage> logMessages;
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
-        private List<TcpClient> clients;
-
+        private List<TcpClient> logClients;
+        private List<TcpClient> settingsClients;
         public ImageServiceClientHandler(ILoggingService l, IImageController c)
         {
             this.controller = c;
@@ -35,40 +34,72 @@ namespace ImageService.Server
             this.CloseCommand += this.handler.OnCloseDirectory;
             this.CommandRecieved += this.handler.OnCommandRecieved;
             this.logMessages = new List<LogMessage>();
-            this.clients = new List<TcpClient>();
+            this.logClients = new List<TcpClient>();
+            this.settingsClients = new List<TcpClient>();
         }
         public void HandleClient(TcpClient client)
         {
-            clients.Add(client);
-            stream = client.GetStream();
-            reader = new BinaryReader(stream);
-            writer = new BinaryWriter(stream);
-            bool stop = false;
+             NetworkStream stream;
+            BinaryReader reader;
+            BinaryWriter writer;
+        bool stop = false;
             new Task(() =>
             {
                 while (!stop)
                 {
+                    stream = client.GetStream();
+                    reader = new BinaryReader(stream);
+                    writer = new BinaryWriter(stream);
                     int commandNum;
                     bool res;
                     String result = null;
                     // System.Diagnostics.Debugger.Launch();
                     string commandLine = reader.ReadString();
                     Console.WriteLine("Got command: {0}", commandLine);
+                    Char c = commandLine[0];
                     this.log.Log("command recieved: " + commandLine, MessageTypeEnum.INFO);
                     try
                     {
-                        commandNum = Int32.Parse(commandLine);
+                        commandNum = Int32.Parse(c.ToString());
+                        if(commandNum == (int)CommandEnum.GetConfigCommand)
+                        {
+                            if (!this.settingsClients.Contains(client))
+                            {
+                                settingsClients.Add(client);
+                            }
+                            if (this.logClients.Contains(client))
+                            {
+                                this.logClients.Remove(client);
+                            }
+                        }
                         if (commandNum == (int)CommandEnum.CloseHandler)
                         {
-                            // System.Diagnostics.Debugger.Launch();
+                             System.Diagnostics.Debugger.Launch();
                             this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
-                            string handlerJObject = reader.ReadString();
-                            this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
-                            HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
-                            this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
+                           
+                                String handlerJObject = commandLine.Substring(1, commandLine.Length - 1); ;
+
+                                this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
+                                HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
+                                this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
+                                System.Diagnostics.Debugger.Launch();
+                                res = true;
+                                result = ResultMessgeEnum.Success.ToString();
+                           
+                           
+
+                        } else if (commandNum.Equals(((int)CommandEnum.LogCommand).ToString()))
+                        {
+                            if (!this.logClients.Contains(client))
+                            {
+                                logClients.Add(client);
+                            }
+                            if (this.settingsClients.Contains(client))
+                            {
+                                this.settingsClients.Remove(client);
+                            }
                             res = true;
                             result = ResultMessgeEnum.Success.ToString();
-
                         }
                         else
                         {
@@ -81,16 +112,26 @@ namespace ImageService.Server
                         res = false;
                         result = null;
                     }
+                    //lock (writer)
+                    //{
+                        foreach (TcpClient cln in this.settingsClients)
+                        {
+                            
+                            if (res)
+                            {
+                                writer.Write(result);
+                                writer.Flush();
+                            }
+                            else
+                            {
+                                writer.Write(ResultMessgeEnum.Fail.ToString());
+                                writer.Flush();
+                        }
+                        }
+                   // }
+                   
 
 
-                    if (res)
-                    {
-                        writer.Write(result);
-                    }
-                    else
-                    {
-                        writer.Write("failed");
-                    }
                 }
             }).Start();
         }
@@ -117,6 +158,18 @@ namespace ImageService.Server
         {
             this.logMessages.Add(new LogMessage(e.Message, e.Status));
             //write to the client
+            //System.Diagnostics.Debugger.Launch();
+            
+                LogMessage l = new LogMessage(e.Message, e.Status);
+                String logObj = l.ToJSON();
+           // lock (writer)
+           // {
+                foreach (TcpClient client in logClients)
+                {
+                    //writer.Write(logObj);
+                }
+           // }
+            
         }
     }
 }
