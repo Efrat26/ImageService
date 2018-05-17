@@ -1,7 +1,7 @@
-﻿using ImageService.ImageService.Infrastructure.Enums;
-using ImageService.ImageService.Logging;
-using ImageService.ImageService.Logging.Modal;
-using ImageService.Modal.Event;
+﻿using Infrastructure.Enums;
+using Logs.ImageService.Logging;
+using Logs.ImageService.Logging.Modal;
+using Logs.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ImageService.Controller.Handlers
+namespace Logs.Controller.Handlers
 {
     class DirectoyHandler : IDirectoryHandler
     {

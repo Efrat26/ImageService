@@ -7,12 +7,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Drawing;
-using ImageService.ImageService.Infrastructure.Enums;
-using ImageService.ImageService.Logging;
+using Infrastructure.Enums;
+using Logs.ImageService.Logging;
 using System.Drawing.Imaging;
-using ImageService.AppConfigObjects;
+using Logs.AppConfigObjects;
 
-namespace ImageService.Modal
+namespace Logs.Modal
 {
     public class ImageServiceModal : IImageServiceModal
     {

@@ -1,8 +1,8 @@
-﻿using ImageService.Controller;
-using ImageService.Controller.Handlers;
-using ImageService.ImageService.Infrastructure.Enums;
-using ImageService.ImageService.Logging;
-using ImageService.Modal.Event;
+﻿using Logs.Controller;
+using Logs.Controller.Handlers;
+using Infrastructure.Enums;
+using Logs.ImageService.Logging;
+using Logs.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImageService.Server
+namespace Logs.Server
 {
     //a class that is responsible of the the handlers
     public class ImageServerManagerOfHandlers : IManagerOfHandlers

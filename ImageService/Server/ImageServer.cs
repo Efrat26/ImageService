@@ -1,24 +1,19 @@
-﻿using ImageService.Controller;
-using ImageService.Controller.Handlers;
-using ImageService.ImageService.Infrastructure.Enums;
-using ImageService.ImageService.Logging;
-using ImageService.ImageService.Logging.Modal;
-using ImageService.Modal;
-using ImageService.Modal.Event;
+﻿using Infrastructure.Enums;
+using Logs.Controller;
+using Logs.ImageService.Logging;
+using Logs.ImageService.Logging.Modal;
+using Logs.Modal;
+using Logs.Modal.Event;
+using Logs.Server;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
-using ImageService.Commands;
 
 namespace ImageService.Server
 {
-    class ImageServer : IServer
+    public class ImageServer : IServer
     {
         #region Members        
         /// <summary>
@@ -28,21 +23,24 @@ namespace ImageService.Server
         /// <summary>
         /// The logging service
         /// </summary>
-        private ImageService.Logging.ILoggingService logging;
+        private ILoggingService logging;
         /// <summary>
         private List<TcpClient> clients;
+        private int port;
+        private String ip;
+        private TcpListener listener;
+        private IClientHandler ch;
         #endregion
-        #region Properties     
+        #region Properties 
+        public int Port { get { return this.port; } set { this.port = value; } }
+        public String IP { get { return this.ip; } set { this.ip = value; } }
         /// <summary>
         /// Occurs when a command recieved.
         /// </summary>
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
         public event EventHandler<MessageRecievedEventArgs> LogMessageRecieved;
-        private int port;
-        private String IP;
-        private TcpListener listener;
-        private IClientHandler ch;
+       
         #endregion
         /// <summary>
         /// Initializes a new instance of the class.
@@ -50,7 +48,7 @@ namespace ImageService.Server
         /// <param name="l">The logging service</param>
         public ImageServer(ILoggingService l, String ip, int p)
         {
-            this.port = p;
+            this.Port = p;
             this.IP = ip;
             //thr logger of the service
             this.logging = l;
@@ -67,6 +65,20 @@ namespace ImageService.Server
             this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
             //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
         }
+
+        event EventHandler<CommandRecievedEventArgs> IServer.CommandRecieved
+        {
+            add
+            {
+              //  throw new NotImplementedException();
+            }
+
+            remove
+            {
+               // throw new NotImplementedException();
+            }
+        }
+
         /// <summary>
         /// Raises the Close event.
         /// </summary>

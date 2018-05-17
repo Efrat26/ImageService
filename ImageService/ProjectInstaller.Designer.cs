@@ -1,6 +1,6 @@
 ﻿using System.ServiceProcess;
 
-namespace ImageService
+namespace Logs
 {
     partial class ProjectInstaller
     {

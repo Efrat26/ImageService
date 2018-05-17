@@ -1,13 +1,13 @@
-﻿using ImageService.Commands;
-using ImageService.ImageService.Infrastructure.Enums;
-using ImageService.Modal;
+﻿using Logs.Commands;
+using Infrastructure.Enums;
+using Logs.Modal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImageService.Controller
+namespace Logs.Controller
 {
     class ImageController : IImageController
     {       

@@ -8,13 +8,14 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using ImageService.Server;
-using ImageService.ImageService.Logging;
-using ImageService.ImageService.Logging.Modal;
+using Logs.Server;
+using Logs.ImageService.Logging;
+using Logs.ImageService.Logging.Modal;
 using System.Configuration;
 using System.IO;
 using System.Security.Permissions;
-using ImageService.Modal.Event;
+using Logs.Modal.Event;
+using ImageService.Server;
 
 namespace ImageService1
 {

@@ -1,8 +1,8 @@
-﻿using ImageService.Controller;
-using ImageService.Controller.Handlers;
-using ImageService.ImageService.Infrastructure.Enums;
-using ImageService.ImageService.Logging;
-using ImageService.Modal.Event;
+﻿using Logs.Controller;
+using Logs.Controller.Handlers;
+using Infrastructure.Enums;
+using Logs.ImageService.Logging;
+using Logs.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,10 +10,10 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using ImageService.ImageService.Logging.Modal;
+using Logs.ImageService.Logging.Modal;
 using System.Threading;
 
-namespace ImageService.Server
+namespace Logs.Server
 {
     public class ImageServiceClientHandler : IClientHandler
     {

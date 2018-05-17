@@ -1,11 +1,11 @@
-﻿using ImageService.Modal.Event;
+﻿using Logs.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImageService.Server
+namespace Logs.Server
 {
     public interface IManagerOfHandlers
     {
