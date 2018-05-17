@@ -17,7 +17,7 @@ namespace Logs.Server
 {
     public class ImageServiceClientHandler : IClientHandler
     {
-        
+
         private IImageController controller;
         private IManagerOfHandlers handler;
         private ILoggingService log;
@@ -26,6 +26,7 @@ namespace Logs.Server
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
         private List<TcpClient> logClients;
         private List<TcpClient> settingsClients;
+        private static Mutex mut = new Mutex();
         public ImageServiceClientHandler(ILoggingService l, IImageController c)
         {
             this.controller = c;
@@ -39,10 +40,10 @@ namespace Logs.Server
         }
         public void HandleClient(TcpClient client)
         {
-             NetworkStream stream;
+            NetworkStream stream;
             BinaryReader reader;
             BinaryWriter writer;
-        bool stop = false;
+            bool stop = false;
             new Task(() =>
             {
                 while (!stop)
@@ -61,7 +62,7 @@ namespace Logs.Server
                     try
                     {
                         commandNum = Int32.Parse(c.ToString());
-                        if(commandNum == (int)CommandEnum.GetConfigCommand)
+                        if (commandNum == (int)CommandEnum.GetConfigCommand)
                         {
                             if (!this.settingsClients.Contains(client))
                             {
@@ -74,20 +75,21 @@ namespace Logs.Server
                         }
                         if (commandNum == (int)CommandEnum.CloseHandler)
                         {
-                             //System.Diagnostics.Debugger.Launch();
+                            //System.Diagnostics.Debugger.Launch();
                             this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
-                           
-                                String handlerJObject = commandLine.Substring(1, commandLine.Length - 1); ;
 
-                                this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
-                                HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
-                                this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
-                                //System.Diagnostics.Debugger.Launch();
-                                res = true;
-                                result = ResultMessgeEnum.Success.ToString();
-                        } else if (commandNum == (int)CommandEnum.LogCommand)
+                            String handlerJObject = commandLine.Substring(1, commandLine.Length - 1); ;
+
+                            this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
+                            HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
+                            this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
+                            //System.Diagnostics.Debugger.Launch();
+                            res = true;
+                            result = ResultMessgeEnum.Success.ToString();
+                        }
+                        else if (commandNum == (int)CommandEnum.LogCommand)
                         {
-                           // System.Diagnostics.Debugger.Launch();
+                            // System.Diagnostics.Debugger.Launch();
                             if (!this.logClients.Contains(client))
                             {
                                 logClients.Add(client);
@@ -108,26 +110,43 @@ namespace Logs.Server
                     catch (Exception)
                     {
                         res = false;
-                        result = null;
+                        result = ResultMessgeEnum.Fail.ToString();
                     }
-                    //lock (writer)
-                    //{
-                        foreach (TcpClient cln in this.settingsClients)
+                    mut.WaitOne();
+
+                    foreach (TcpClient cln in this.settingsClients)
+                    {
+
+                        if (res)
                         {
-                            
-                            if (res)
+                            if (!result.Equals(ResultMessgeEnum.Success.ToString()))
                             {
-                                writer.Write(result);
+                                writer.Write("\r\n" + result + "\r\n");
                                 writer.Flush();
                             }
                             else
                             {
-                                writer.Write(ResultMessgeEnum.Fail.ToString());
+                                writer.Write(result);
                                 writer.Flush();
+
+                            }
                         }
+                        else
+                        {
+                            if (!result.Equals(ResultMessgeEnum.Fail.ToString()))
+                            {
+                                writer.Write("\r\n" + result + "\r\n");
+                                writer.Flush();
+                            }
+                            else
+                            {
+                                writer.Write(result);
+                                writer.Flush();
+                            }
                         }
-                   // }
-                   
+                    }
+                    mut.ReleaseMutex();
+
 
 
                 }
@@ -159,21 +178,28 @@ namespace Logs.Server
             //System.Diagnostics.Debugger.Launch();
             NetworkStream stream;
             BinaryReader reader;
-            BinaryWriter writer;
+            BinaryWriter writer = null;
             LogMessage l = new LogMessage(e.Message, e.Status);
-                String logObj = l.ToJSON();
-           // lock (writer)
-           // {
+            String logObj = l.ToJSON();
+
+            {
+                mut.WaitOne();
                 foreach (TcpClient client in logClients)
                 {
-                //System.Diagnostics.Debugger.Launch();
-                stream = client.GetStream();
-                reader = new BinaryReader(stream);
-                writer = new BinaryWriter(stream);
-                writer.Write(logObj);
+                    //System.Diagnostics.Debugger.Launch();
+                    stream = client.GetStream();
+                    reader = new BinaryReader(stream);
+                    writer = new BinaryWriter(stream);
+
+                    writer.Write("\r\n" + logObj + "\r\n");
+
+
+                }
+                mut.ReleaseMutex();
+
             }
-           // }
-            
+
+
         }
     }
 }
