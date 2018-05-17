@@ -57,7 +57,7 @@ namespace ImageService.Server
                     string commandLine = reader.ReadString();
                     Console.WriteLine("Got command: {0}", commandLine);
                     Char c = commandLine[0];
-                    this.log.Log("command recieved: " + commandLine, MessageTypeEnum.INFO);
+                    this.log.Log("command recieved: " + c, MessageTypeEnum.INFO);
                     try
                     {
                         commandNum = Int32.Parse(c.ToString());
@@ -74,7 +74,7 @@ namespace ImageService.Server
                         }
                         if (commandNum == (int)CommandEnum.CloseHandler)
                         {
-                             System.Diagnostics.Debugger.Launch();
+                             //System.Diagnostics.Debugger.Launch();
                             this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
                            
                                 String handlerJObject = commandLine.Substring(1, commandLine.Length - 1); ;
@@ -82,14 +82,12 @@ namespace ImageService.Server
                                 this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
                                 HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
                                 this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
-                                System.Diagnostics.Debugger.Launch();
+                                //System.Diagnostics.Debugger.Launch();
                                 res = true;
                                 result = ResultMessgeEnum.Success.ToString();
-                           
-                           
-
-                        } else if (commandNum.Equals(((int)CommandEnum.LogCommand).ToString()))
+                        } else if (commandNum == (int)CommandEnum.LogCommand)
                         {
+                           // System.Diagnostics.Debugger.Launch();
                             if (!this.logClients.Contains(client))
                             {
                                 logClients.Add(client);
@@ -159,15 +157,21 @@ namespace ImageService.Server
             this.logMessages.Add(new LogMessage(e.Message, e.Status));
             //write to the client
             //System.Diagnostics.Debugger.Launch();
-            
-                LogMessage l = new LogMessage(e.Message, e.Status);
+            NetworkStream stream;
+            BinaryReader reader;
+            BinaryWriter writer;
+            LogMessage l = new LogMessage(e.Message, e.Status);
                 String logObj = l.ToJSON();
            // lock (writer)
            // {
                 foreach (TcpClient client in logClients)
                 {
-                    //writer.Write(logObj);
-                }
+                //System.Diagnostics.Debugger.Launch();
+                stream = client.GetStream();
+                reader = new BinaryReader(stream);
+                writer = new BinaryWriter(stream);
+                writer.Write(logObj);
+            }
            // }
             
         }

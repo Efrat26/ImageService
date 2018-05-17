@@ -34,6 +34,24 @@ namespace ImageService.ImageService.Logging
             logMessageItm["type"] = this.type.ToString();
             return logMessageItm.ToString();
         }
-        
+        public static LogMessage FromJSON(string str)
+        {
+            LogMessage logMsg = new LogMessage("",MessageTypeEnum.INFO);
+            JObject json = JObject.Parse(str);
+            logMsg.Message = (string)json["message"];
+            string tmp = (string)json["type"];
+            if (tmp.Equals(MessageTypeEnum.FAIL.ToString()))
+            {
+                logMsg.type = MessageTypeEnum.FAIL;
+            } else if (tmp.Equals(MessageTypeEnum.INFO.ToString()))
+            {
+                logMsg.type = MessageTypeEnum.INFO;
+            }
+            else
+            {
+                logMsg.type = MessageTypeEnum.WARNING;
+            }
+            return logMsg;
+        }
     }
 }

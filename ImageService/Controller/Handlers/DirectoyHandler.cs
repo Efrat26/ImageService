@@ -99,7 +99,7 @@ namespace ImageService.Controller.Handlers
         public void OnCommand(object sender, CommandRecievedEventArgs e)
         {
             this.logging.Log("in on command of handler", MessageTypeEnum.INFO);
-             System.Diagnostics.Debugger.Launch();
+             //System.Diagnostics.Debugger.Launch();
             if (e.CommandID == (int)CommandEnum.CloseCommand && e.RequestDirPath == null)
             {
                 this.dirWatcher.Changed -= this.OnNewFile;

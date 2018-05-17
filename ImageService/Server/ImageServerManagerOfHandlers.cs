@@ -55,7 +55,7 @@ namespace ImageService.Server
         }
         public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
         {
-            System.Diagnostics.Debugger.Launch();
+            //System.Diagnostics.Debugger.Launch();
             //remove the methods that signed to the events
             foreach (IDirectoryHandler handler in this.handler)
             {
@@ -75,7 +75,7 @@ namespace ImageService.Server
         public void OnCommandRecieved(object sender, CommandRecievedEventArgs e)
         {
             //remove the methods that signed to the events
-            System.Diagnostics.Debugger.Launch();
+            //System.Diagnostics.Debugger.Launch();
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
                 this.log.Log("closing all handlers",
