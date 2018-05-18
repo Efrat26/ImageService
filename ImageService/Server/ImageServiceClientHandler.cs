@@ -1,17 +1,15 @@
 ﻿using Logs.Controller;
 using Logs.Controller.Handlers;
 using Infrastructure.Enums;
-using Logs.ImageService.Logging;
 using Logs.Modal.Event;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
-using Logs.ImageService.Logging.Modal;
 using System.Threading;
+using Logs.ImageService.Logging;
+using Logs.ImageService.Logging.Modal;
 
 namespace Logs.Server
 {
@@ -151,6 +149,8 @@ namespace Logs.Server
         {
             Task task = new Task(() =>
             {
+                Console.WriteLine(message);
+               // this.log.Log("in task, writing message: "+message, MessageTypeEnum.INFO);
                 NetworkStream stream;
                 BinaryWriter writer;
                 //setting clients
@@ -169,7 +169,7 @@ namespace Logs.Server
                         {
                             writer = new BinaryWriter(stream);
                             writer.Write(message);
-                            writer.Flush();
+                           // writer.Flush();
                             //writer.Close();
                             //Task.Delay(1000);
                         }
@@ -197,7 +197,7 @@ namespace Logs.Server
                         {
                             writer = new BinaryWriter(stream);
                             writer.Write(message);
-                            writer.Flush();
+                            //writer.Flush();
                             //writer.Close();
                             // Task.Delay(1000);
                         }
@@ -213,7 +213,7 @@ namespace Logs.Server
                 }
             });
             task.Start();
-           //task.Wait();
+         //  task.Wait();
         }
     }
 }

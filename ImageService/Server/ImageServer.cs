@@ -13,8 +13,26 @@ using System.Threading.Tasks;
 
 namespace ImageService.Server
 {
-    public class ImageServer : IServer
+    public sealed class ImageServer : IServer
     {
+        private static volatile ImageServer instance;
+        private static object syncRoot = new Object();
+        public static ImageServer Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (syncRoot)
+                    {
+                        if (instance == null)
+                            instance = new ImageServer("127.0.0.1", 8000);
+                    }
+                }
+
+                return instance;
+            }
+        }
         #region Members        
         /// <summary>
         /// The controller - holds the object to threat the command (dictionary with commands)
@@ -34,6 +52,7 @@ namespace ImageService.Server
         #region Properties 
         public int Port { get { return this.port; } set { this.port = value; } }
         public String IP { get { return this.ip; } set { this.ip = value; } }
+        public ILoggingService Log { get { return this.logging;} set {this.logging = value; } }
         /// <summary>
         /// Occurs when a command recieved.
         /// </summary>
@@ -46,24 +65,14 @@ namespace ImageService.Server
         /// Initializes a new instance of the class.
         /// </summary>
         /// <param name="l">The logging service</param>
-        public ImageServer(ILoggingService l, String ip, int p)
+        public ImageServer(String ip, int p)
         {
             this.Port = p;
             this.IP = ip;
             //thr logger of the service
-            this.logging = l;
+           // this.logging = l;
             //create image model
-            this.controller = new ImageController(new ImageServiceModal(l));
-            //set the client handler
-            this.ch = new ImageServiceClientHandler(logging, controller);
-            //this.ch.SetController(this.controller);
-            this.CommandRecieved += this.ch.OnCommandRecieved;
-            this.LogMessageRecieved += this.ch.OnLogMessageRecieved;
-            //start listening
-            //System.Diagnostics.Debugger.Launch();
-            this.Start();
-            this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
-            //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+            
         }
 
         event EventHandler<CommandRecievedEventArgs> IServer.CommandRecieved
@@ -128,5 +137,33 @@ namespace ImageService.Server
         {
             this.LogMessageRecieved?.Invoke(this, e);
         }
+        public void SetLoggerService(ILoggingService l)
+        {
+            this.logging = l;
+            this.controller = new ImageController(new ImageServiceModal(l));
+            //set the client handler
+            this.ch = new ImageServiceClientHandler(logging, controller);
+            //this.ch.SetController(this.controller);
+            this.CommandRecieved += this.ch.OnCommandRecieved;
+            this.LogMessageRecieved += this.ch.OnLogMessageRecieved;
+            //start listening
+            //System.Diagnostics.Debugger.Launch();
+            this.Start();
+            this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
+            //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+        }
     }
 }
+/*
+  this.controller = new ImageController(new ImageServiceModal(l));
+            //set the client handler
+            this.ch = new ImageServiceClientHandler(logging, controller);
+            //this.ch.SetController(this.controller);
+            this.CommandRecieved += this.ch.OnCommandRecieved;
+            this.LogMessageRecieved += this.ch.OnLogMessageRecieved;
+            //start listening
+            //System.Diagnostics.Debugger.Launch();
+            this.Start();
+            this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
+            //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+ */

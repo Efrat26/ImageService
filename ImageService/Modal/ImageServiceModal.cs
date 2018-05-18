@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Drawing;
+using System.IO;
+using System.Threading.Tasks;
 using Infrastructure.Enums;
-using Logs.ImageService.Logging;
-using System.Drawing.Imaging;
 using Logs.AppConfigObjects;
-
+using Logs.ImageService.Logging;
 namespace Logs.Modal
 {
     public class ImageServiceModal : IImageServiceModal
