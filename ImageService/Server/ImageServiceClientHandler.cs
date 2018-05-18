@@ -26,6 +26,8 @@ namespace Logs.Server
         private List<TcpClient> settingsClients;
         private static Mutex mut = new Mutex();
         private Dictionary<TcpClient, NetworkStream> myClients = new Dictionary<TcpClient, NetworkStream>();
+        private Dictionary<TcpClient, BinaryWriter> writerDictionary = new Dictionary<TcpClient, BinaryWriter>();
+        private Dictionary<TcpClient, BinaryReader> readerDictionary = new Dictionary<TcpClient, BinaryReader>();
         public ImageServiceClientHandler(ILoggingService l, IImageController c)
         {
             this.controller = c;
@@ -60,9 +62,21 @@ namespace Logs.Server
                     bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
                     if (hasValue)
                     {
-                        reader = new BinaryReader(stream);
+                        hasValue = readerDictionary.TryGetValue(client, out BinaryReader r);
+                        if (!hasValue)
+                        {
+                            reader = new BinaryReader(stream);
+                            readerDictionary.Add(client, reader);
+                        }
+                        else
+                        {
+                            reader = r;
+                        }
                         string commandLine = reader.ReadString();
+                        Task.Delay(1000);
+                        // Task.Delay(4000);
                         Console.WriteLine("Got command: {0}", commandLine);
+                        //System.Diagnostics.Debugger.Launch();
                         Char c = commandLine[0];
                         // this.log.Log("command recieved: " + c, MessageTypeEnum.INFO);
                         try
@@ -118,7 +132,7 @@ namespace Logs.Server
                             res = false;
                             result = ResultMessgeEnum.Fail.ToString();
                         }
-                        Task.Delay(2000);
+                        
                         this.WriteToClient(result, 1);
                         //this.WriteToClient(result, 1);
                     }
@@ -157,7 +171,7 @@ namespace Logs.Server
 
         private void WriteToClient(string message, int clientType)
         {
-            System.Diagnostics.Debugger.Launch();
+          //  System.Diagnostics.Debugger.Launch();
             Task task = new Task(() =>
             {
                 Console.WriteLine(message);
@@ -170,10 +184,20 @@ namespace Logs.Server
 
                         //System.Diagnostics.Debugger.Launch();
                         //stream = client.GetStream();
+                        BinaryWriter writer;
                         bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
-                        if (hasValue)
+                        if (hasValue && stream != null)
                         {
-                            BinaryWriter writer = new BinaryWriter(stream);
+                            hasValue = writerDictionary.TryGetValue(client, out BinaryWriter w);
+                            if (!hasValue)
+                            {
+                                writer = new BinaryWriter(stream);
+                                writerDictionary.Add(client, writer);
+                            }
+                            else
+                            {
+                                writer = w;
+                            }
                             try
                             {
                                 //  writer = new BinaryWriter(stream);
@@ -204,7 +228,17 @@ namespace Logs.Server
                         bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
                         if (hasValue)
                         {
-                            BinaryWriter writer = new BinaryWriter(stream);
+                            BinaryWriter writer;
+                             hasValue = writerDictionary.TryGetValue(client, out BinaryWriter w);
+                            if (!hasValue)
+                            {
+                                writer = new BinaryWriter(stream);
+                                writerDictionary.Add(client, writer);
+                            }
+                            else
+                            {
+                                writer = w;
+                            }
                             try
                             {
                                 // writer = new BinaryWriter(stream);
