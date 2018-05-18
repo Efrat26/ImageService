@@ -139,7 +139,7 @@ namespace Logs.Controller.Handlers
                     string res = this.controller.ExecuteCommand(e.CommandID, e.Args, out bool result);
                     if (ResultMessgeEnum.Success.Equals(res))
                     {
-                        this.logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                       // this.logging.Log(e.RequestDirPath + res, ImageService.Logging.Modal.MessageTypeEnum.INFO);
                     }
                     else
                     {
@@ -169,9 +169,9 @@ namespace Logs.Controller.Handlers
                 this.controller.ExecuteCommand((int)CommandEnum.NewFileCommand, args, out bool result);
                 if (result)
                 {
-                    this.logging.Log("in handler - event on new file" +
-                        " reciveced for" + e.Name + " result of executing command was successful",
-                        ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                //    this.logging.Log("in handler - event on new file" +
+                    //    " reciveced for" + e.Name + " result of executing command was successful",
+                      //  ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 }
                 else
                 {

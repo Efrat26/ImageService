@@ -52,7 +52,7 @@ namespace Logs.Modal
             catch (Exception)
             {
                 this.log.Log("failed to convert thubnail size from app configuration",
-                     ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+                    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             }
             //try to create the output folder only if it's not exist as an hidden folder
             if (!Directory.Exists(outputFolder))
@@ -188,8 +188,8 @@ namespace Logs.Modal
             });
             t.Start();
             // t.Wait();
-            this.log.Log("moving the file to destenation folder, result is: " + t.Result,
-                ImageService.Logging.Modal.MessageTypeEnum.FAIL);
+         //   this.log.Log("moving the file to destenation folder, result is: " + t.Result,
+            //    ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             result = true;
             res = ResultMessgeEnum.Success.ToString(); 
             return res;

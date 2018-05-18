@@ -42,7 +42,6 @@ namespace Logs.Server
         {
             NetworkStream stream;
             BinaryReader reader;
-            BinaryWriter writer;
             bool stop = false;
             new Task(() =>
             {
@@ -50,7 +49,7 @@ namespace Logs.Server
                 {
                     stream = client.GetStream();
                     reader = new BinaryReader(stream);
-                    writer = new BinaryWriter(stream);
+                   // writer = new BinaryWriter(stream);
                     int commandNum;
                     bool res;
                     String result = null;
@@ -58,7 +57,7 @@ namespace Logs.Server
                     string commandLine = reader.ReadString();
                     Console.WriteLine("Got command: {0}", commandLine);
                     Char c = commandLine[0];
-                    this.log.Log("command recieved: " + c, MessageTypeEnum.INFO);
+                    // this.log.Log("command recieved: " + c, MessageTypeEnum.INFO);
                     try
                     {
                         commandNum = Int32.Parse(c.ToString());
@@ -112,42 +111,8 @@ namespace Logs.Server
                         res = false;
                         result = ResultMessgeEnum.Fail.ToString();
                     }
-                    mut.WaitOne();
-
-                    foreach (TcpClient cln in this.settingsClients)
-                    {
-
-                        if (res)
-                        {
-                            if (!result.Equals(ResultMessgeEnum.Success.ToString()))
-                            {
-                                writer.Write("\r\n" + result + "\r\n");
-                                writer.Flush();
-                            }
-                            else
-                            {
-                                writer.Write(result);
-                                writer.Flush();
-
-                            }
-                        }
-                        else
-                        {
-                            if (!result.Equals(ResultMessgeEnum.Fail.ToString()))
-                            {
-                                writer.Write("\r\n" + result + "\r\n");
-                                writer.Flush();
-                            }
-                            else
-                            {
-                                writer.Write(result);
-                                writer.Flush();
-                            }
-                        }
-                    }
-                    mut.ReleaseMutex();
-
-
+                    Task.Delay(2000);
+                    this.WriteToClient(result, 1);
 
                 }
             }).Start();
@@ -176,30 +141,79 @@ namespace Logs.Server
             this.logMessages.Add(new LogMessage(e.Message, e.Status));
             //write to the client
             //System.Diagnostics.Debugger.Launch();
-            NetworkStream stream;
-            BinaryReader reader;
-            BinaryWriter writer = null;
+
             LogMessage l = new LogMessage(e.Message, e.Status);
             String logObj = l.ToJSON();
+            this.WriteToClient(logObj, 2);
+        }
 
+        private void WriteToClient(string message, int clientType)
+        {
+            Task task = new Task(() =>
             {
-                mut.WaitOne();
-                foreach (TcpClient client in logClients)
+                NetworkStream stream;
+                BinaryWriter writer;
+                //setting clients
+
+                if (clientType == 1)
                 {
-                    //System.Diagnostics.Debugger.Launch();
-                    stream = client.GetStream();
-                    reader = new BinaryReader(stream);
-                    writer = new BinaryWriter(stream);
-
-                    writer.Write("\r\n" + logObj + "\r\n");
-
-
+                    
+                    mut.WaitOne();
+                    //this.log.Log("sending message to seetings client," + message, MessageTypeEnum.INFO);
+                    foreach (TcpClient client in this.settingsClients)
+                    {
+                        
+                            System.Diagnostics.Debugger.Launch();
+                            stream = client.GetStream();
+                        try
+                        {
+                            writer = new BinaryWriter(stream);
+                            writer.Write(message);
+                            writer.Flush();
+                            //writer.Close();
+                            //Task.Delay(1000);
+                        }
+                        catch (Exception e)
+                        {
+                            this.log.Log("trying to send message to settings client," +
+                                " got exception\n message is: " + message + " exception is: " + e.ToString()
+                                +" stream is: " + stream.ToString(),
+                                MessageTypeEnum.FAIL);
+                        }
+                    }
+                    mut.ReleaseMutex();
                 }
-                mut.ReleaseMutex();
-
-            }
-
-
+                else
+                {
+                    
+                    mut.WaitOne();
+                    //this.log.Log("sending message to logs client," + message, MessageTypeEnum.INFO);
+                    foreach (TcpClient client in this.logClients)
+                    {
+                       
+                            //System.Diagnostics.Debugger.Launch();
+                            stream = client.GetStream();
+                        try
+                        {
+                            writer = new BinaryWriter(stream);
+                            writer.Write(message);
+                            writer.Flush();
+                            //writer.Close();
+                            // Task.Delay(1000);
+                        }
+                        catch (Exception e)
+                        {
+                            this.log.Log("trying to send message to log client," +
+                                " got exception\n message is: " + message + " exception is: " + e.ToString()
+                                 + " stream is: " + stream.ToString(),
+                                MessageTypeEnum.FAIL);
+                        }
+                    }
+                    mut.ReleaseMutex();
+                }
+            });
+            task.Start();
+           //task.Wait();
         }
     }
 }

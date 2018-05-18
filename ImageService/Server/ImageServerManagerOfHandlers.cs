@@ -78,8 +78,8 @@ namespace Logs.Server
             //System.Diagnostics.Debugger.Launch();
             if (e.CommandID == (int)CommandEnum.CloseCommand)
             {
-                this.log.Log("closing all handlers",
-                ImageService.Logging.Modal.MessageTypeEnum.INFO);
+               // this.log.Log("closing all handlers",
+               // ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 foreach (IDirectoryHandler handler in this.handler)
                 {
                     this.CommandRecieved -= handler.OnCommand;
@@ -87,7 +87,7 @@ namespace Logs.Server
                     handler.ExecuteCommand((int)CommandEnum.CloseCommand, null, out bool result);
                     if (result)
                     {
-                        this.log.Log("Removed handler successfully, handler: " + handler.FullPath, ImageService.Logging.Modal.MessageTypeEnum.INFO);
+                       this.log.Log("Removed handler successfully, handler: " + handler.FullPath, ImageService.Logging.Modal.MessageTypeEnum.INFO);
                         this.handler.Remove(handler);
                     }
                     else
