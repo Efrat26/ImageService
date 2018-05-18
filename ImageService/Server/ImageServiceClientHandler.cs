@@ -25,6 +25,7 @@ namespace Logs.Server
         private List<TcpClient> logClients;
         private List<TcpClient> settingsClients;
         private static Mutex mut = new Mutex();
+        private Dictionary<TcpClient, NetworkStream> myClients = new Dictionary<TcpClient, NetworkStream>();
         public ImageServiceClientHandler(ILoggingService l, IImageController c)
         {
             this.controller = c;
@@ -38,80 +39,89 @@ namespace Logs.Server
         }
         public void HandleClient(TcpClient client)
         {
-            NetworkStream stream;
+            //bool settingClient = true;
+            myClients.Add(client, client.GetStream());
+
             BinaryReader reader;
+            //BinaryWriter writer;
             bool stop = false;
             new Task(() =>
             {
                 while (!stop)
                 {
-                    stream = client.GetStream();
-                    reader = new BinaryReader(stream);
-                   // writer = new BinaryWriter(stream);
+
+
+                    // writer = new BinaryWriter(stream);
                     int commandNum;
                     bool res;
                     String result = null;
+
                     // System.Diagnostics.Debugger.Launch();
-                    string commandLine = reader.ReadString();
-                    Console.WriteLine("Got command: {0}", commandLine);
-                    Char c = commandLine[0];
-                    // this.log.Log("command recieved: " + c, MessageTypeEnum.INFO);
-                    try
+                    bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
+                    if (hasValue)
                     {
-                        commandNum = Int32.Parse(c.ToString());
-                        if (commandNum == (int)CommandEnum.GetConfigCommand)
+                        reader = new BinaryReader(stream);
+                        string commandLine = reader.ReadString();
+                        Console.WriteLine("Got command: {0}", commandLine);
+                        Char c = commandLine[0];
+                        // this.log.Log("command recieved: " + c, MessageTypeEnum.INFO);
+                        try
                         {
-                            if (!this.settingsClients.Contains(client))
+                            commandNum = Int32.Parse(c.ToString());
+                            if (commandNum == (int)CommandEnum.GetConfigCommand)
                             {
-                                settingsClients.Add(client);
+                                if (!this.settingsClients.Contains(client))
+                                {
+                                    settingsClients.Add(client);
+                                }
+                                if (this.logClients.Contains(client))
+                                {
+                                    this.logClients.Remove(client);
+                                }
                             }
-                            if (this.logClients.Contains(client))
+                            if (commandNum == (int)CommandEnum.CloseHandler)
                             {
-                                this.logClients.Remove(client);
-                            }
-                        }
-                        if (commandNum == (int)CommandEnum.CloseHandler)
-                        {
-                            //System.Diagnostics.Debugger.Launch();
-                            this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
+                                //System.Diagnostics.Debugger.Launch();
+                                this.log.Log("close specific handler command recieved", MessageTypeEnum.INFO);
+                                String handlerJObject = commandLine.Substring(1, commandLine.Length - 1);
+                                this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
+                                HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
+                                this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
+                                //System.Diagnostics.Debugger.Launch();
+                                res = true;
+                                result = ResultMessgeEnum.Success.ToString();
 
-                            String handlerJObject = commandLine.Substring(1, commandLine.Length - 1); ;
-
-                            this.log.Log("recieved: " + handlerJObject, MessageTypeEnum.INFO);
-                            HandlerToClose h = HandlerToClose.FromJSON(handlerJObject);
-                            this.CloseCommand?.Invoke(this, new DirectoryCloseEventArgs(h.Path, null));
-                            //System.Diagnostics.Debugger.Launch();
-                            res = true;
-                            result = ResultMessgeEnum.Success.ToString();
-                        }
-                        else if (commandNum == (int)CommandEnum.LogCommand)
-                        {
-                            // System.Diagnostics.Debugger.Launch();
-                            if (!this.logClients.Contains(client))
-                            {
-                                logClients.Add(client);
                             }
-                            if (this.settingsClients.Contains(client))
+                            else if (commandNum == (int)CommandEnum.LogCommand)
                             {
-                                this.settingsClients.Remove(client);
+                                //settingClient = false;
+                                // System.Diagnostics.Debugger.Launch();
+                                if (!this.logClients.Contains(client))
+                                {
+                                    logClients.Add(client);
+                                }
+                                if (this.settingsClients.Contains(client))
+                                {
+                                    this.settingsClients.Remove(client);
+                                }
+                                res = true;
+                                result = ResultMessgeEnum.Success.ToString();
                             }
-                            res = true;
-                            result = ResultMessgeEnum.Success.ToString();
+                            else
+                            {
+                                this.log.Log("command number " + commandNum.ToString() + " recieved", MessageTypeEnum.INFO);
+                                result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out res);
+                            }
                         }
-                        else
+                        catch (Exception)
                         {
-                            this.log.Log("command number " + commandNum.ToString() + " recieved", MessageTypeEnum.INFO);
-                            result = this.controller.ExecuteCommand(Int32.Parse(commandLine), null, out res);
+                            res = false;
+                            result = ResultMessgeEnum.Fail.ToString();
                         }
+                        Task.Delay(2000);
+                        this.WriteToClient(result, 1);
+                        //this.WriteToClient(result, 1);
                     }
-                    catch (Exception)
-                    {
-                        res = false;
-                        result = ResultMessgeEnum.Fail.ToString();
-                    }
-                    Task.Delay(2000);
-                    this.WriteToClient(result, 1);
-
                 }
             }).Start();
         }
@@ -147,73 +157,76 @@ namespace Logs.Server
 
         private void WriteToClient(string message, int clientType)
         {
+            System.Diagnostics.Debugger.Launch();
             Task task = new Task(() =>
             {
                 Console.WriteLine(message);
-               // this.log.Log("in task, writing message: "+message, MessageTypeEnum.INFO);
-                NetworkStream stream;
-                BinaryWriter writer;
-                //setting clients
-
                 if (clientType == 1)
                 {
-                    
                     mut.WaitOne();
                     //this.log.Log("sending message to seetings client," + message, MessageTypeEnum.INFO);
                     foreach (TcpClient client in this.settingsClients)
                     {
-                        
-                            System.Diagnostics.Debugger.Launch();
-                            stream = client.GetStream();
-                        try
+
+                        //System.Diagnostics.Debugger.Launch();
+                        //stream = client.GetStream();
+                        bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
+                        if (hasValue)
                         {
-                            writer = new BinaryWriter(stream);
-                            writer.Write(message);
-                           // writer.Flush();
-                            //writer.Close();
-                            //Task.Delay(1000);
-                        }
-                        catch (Exception e)
-                        {
-                            this.log.Log("trying to send message to settings client," +
-                                " got exception\n message is: " + message + " exception is: " + e.ToString()
-                                +" stream is: " + stream.ToString(),
-                                MessageTypeEnum.FAIL);
+                            BinaryWriter writer = new BinaryWriter(stream);
+                            try
+                            {
+                                //  writer = new BinaryWriter(stream);
+                                writer.Write(message);
+                                writer.Flush();
+                                // writer.Flush();
+                                //writer.Close();
+                                //Task.Delay(1000);
+                            }
+                            catch (Exception e)
+                            {
+                                this.log.Log("trying to send message to settings client," +
+                                    " got exception\n message is: " + message + " exception is: " + e.ToString()
+                                    + " stream is: " + stream.ToString(),
+                                    MessageTypeEnum.FAIL);
+                            }
                         }
                     }
                     mut.ReleaseMutex();
                 }
                 else
                 {
-                    
+
                     mut.WaitOne();
                     //this.log.Log("sending message to logs client," + message, MessageTypeEnum.INFO);
                     foreach (TcpClient client in this.logClients)
                     {
-                       
-                            //System.Diagnostics.Debugger.Launch();
-                            stream = client.GetStream();
-                        try
+                        bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
+                        if (hasValue)
                         {
-                            writer = new BinaryWriter(stream);
-                            writer.Write(message);
-                            //writer.Flush();
-                            //writer.Close();
-                            // Task.Delay(1000);
-                        }
-                        catch (Exception e)
-                        {
-                            this.log.Log("trying to send message to log client," +
-                                " got exception\n message is: " + message + " exception is: " + e.ToString()
-                                 + " stream is: " + stream.ToString(),
-                                MessageTypeEnum.FAIL);
+                            BinaryWriter writer = new BinaryWriter(stream);
+                            try
+                            {
+                                // writer = new BinaryWriter(stream);
+                                writer.Write(message);
+                                //writer.Flush();
+                                //writer.Close();
+                                // Task.Delay(1000);
+                            }
+                            catch (Exception e)
+                            {
+                                this.log.Log("trying to send message to log client," +
+                                    " got exception\n message is: " + message + " exception is: " + e.ToString()
+                                     + " stream is: " + stream.ToString(),
+                                    MessageTypeEnum.FAIL);
+                            }
                         }
                     }
                     mut.ReleaseMutex();
                 }
             });
             task.Start();
-         //  task.Wait();
+            //task.Wait();
         }
     }
 }

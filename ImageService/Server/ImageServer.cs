@@ -44,7 +44,6 @@ namespace ImageService.Server
         /// </summary>
         private ILoggingService logging;
         /// <summary>
-        private List<TcpClient> clients;
         private int port;
         private String ip;
         private TcpListener listener;
@@ -70,10 +69,7 @@ namespace ImageService.Server
         {
             this.Port = p;
             this.IP = ip;
-            //thr logger of the service
-           // this.logging = l;
-            //create image model
-            
+            System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
         }
 
         event EventHandler<CommandRecievedEventArgs> IServer.CommandRecieved
@@ -104,6 +100,7 @@ namespace ImageService.Server
 
         public void Start()
         {
+            List<TcpClient> clients = new List<TcpClient>();
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.IP), this.port);
             listener = new TcpListener(ep);
             listener.Start();
@@ -117,12 +114,17 @@ namespace ImageService.Server
                     try
                     {
                         TcpClient client = listener.AcceptTcpClient();
-                        Console.WriteLine("Got new connection");
-                        this.logging.Log("Got new connection", MessageTypeEnum.INFO);
-                        //System.Diagnostics.Debugger.Launch();
-                        // if (!client.Connected) { client.Connect(ep); }
-                        ch.HandleClient(client);
-
+                        if (!clients.Contains(client))
+                        {
+                            Console.WriteLine("Got new connection");
+                            this.logging.Log("Got new connection", MessageTypeEnum.INFO);
+                            //System.Diagnostics.Debugger.Launch();
+                            // if (!client.Connected) { client.Connect(ep); }
+                            Task t = new Task(() =>
+                            {
+                                ch.HandleClient(client);
+                            }); t.Start();
+                        }
                     }
                     catch (SocketException)
                     { break; }
