@@ -104,7 +104,7 @@ namespace ImageService1
             this.log = new LoggingService();
             //System.Diagnostics.Debugger.Launch();
             this.log.MessageRecieved += OnMessage;
-            this.server = new ImageServer("127.0.0.1", 8000);
+            this.server = ImageServer.Instance;
             this.server.SetLoggerService(log);
             this.ServiceClose += this.server.OnClose;
             this.log.MessageRecieved += this.server.OnMessage;

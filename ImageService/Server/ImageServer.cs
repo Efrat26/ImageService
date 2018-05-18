@@ -26,7 +26,8 @@ namespace ImageService.Server
                     lock (syncRoot)
                     {
                         if (instance == null)
-                            instance = new ImageServer("127.0.0.1", 8000);
+                            instance = new ImageServer(Communication.CommunicationDetails.IP
+                                , Communication.CommunicationDetails.port);
                     }
                 }
 
