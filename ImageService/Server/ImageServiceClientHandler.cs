@@ -22,8 +22,8 @@ namespace Logs.Server
         private List<LogMessage> logMessages;
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
         public event EventHandler<DirectoryCloseEventArgs> CloseCommand;
-        private List<TcpClient> logClients;
-        private List<TcpClient> settingsClients;
+        private List<TcpClient> Clients;
+        //private List<TcpClient> settingsClients;
         private static Mutex mut = new Mutex();
         private Dictionary<TcpClient, NetworkStream> myClients = new Dictionary<TcpClient, NetworkStream>();
         private Dictionary<TcpClient, BinaryWriter> writerDictionary = new Dictionary<TcpClient, BinaryWriter>();
@@ -36,16 +36,23 @@ namespace Logs.Server
             this.CloseCommand += this.handler.OnCloseDirectory;
             this.CommandRecieved += this.handler.OnCommandRecieved;
             this.logMessages = new List<LogMessage>();
-            this.logClients = new List<TcpClient>();
-            this.settingsClients = new List<TcpClient>();
+            this.Clients = new List<TcpClient>();
+            //this.settingsClients = new List<TcpClient>();
         }
         public void HandleClient(TcpClient client)
         {
+            this.Clients.Add(client);
             //bool settingClient = true;
-            myClients.Add(client, client.GetStream());
-
+            if (!myClients.ContainsKey(client))
+            {
+                System.Diagnostics.Debugger.Launch();
+                myClients.Add(client, client.GetStream());
+                for (int i = 0; i < this.logMessages.Count; ++i)
+                {
+                    this.WriteToClient(this.logMessages[i].ToJSON());
+                }
+            }
             BinaryReader reader;
-            //BinaryWriter writer;
             bool stop = false;
             new Task(() =>
             {
@@ -73,6 +80,7 @@ namespace Logs.Server
                             reader = r;
                         }
                         string commandLine = reader.ReadString();
+                        
                         Task.Delay(1000);
                         // Task.Delay(4000);
                         Console.WriteLine("Got command: {0}", commandLine);
@@ -82,17 +90,6 @@ namespace Logs.Server
                         try
                         {
                             commandNum = Int32.Parse(c.ToString());
-                            if (commandNum == (int)CommandEnum.GetConfigCommand)
-                            {
-                                if (!this.settingsClients.Contains(client))
-                                {
-                                    settingsClients.Add(client);
-                                }
-                                if (this.logClients.Contains(client))
-                                {
-                                    this.logClients.Remove(client);
-                                }
-                            }
                             if (commandNum == (int)CommandEnum.CloseHandler)
                             {
                                 //System.Diagnostics.Debugger.Launch();
@@ -108,16 +105,6 @@ namespace Logs.Server
                             }
                             else if (commandNum == (int)CommandEnum.LogCommand)
                             {
-                                //settingClient = false;
-                                // System.Diagnostics.Debugger.Launch();
-                                if (!this.logClients.Contains(client))
-                                {
-                                    logClients.Add(client);
-                                }
-                                if (this.settingsClients.Contains(client))
-                                {
-                                    this.settingsClients.Remove(client);
-                                }
                                 res = true;
                                 result = ResultMessgeEnum.Success.ToString();
                             }
@@ -133,7 +120,9 @@ namespace Logs.Server
                             result = ResultMessgeEnum.Fail.ToString();
                         }
                         
-                        this.WriteToClient(result, 1);
+                           
+                        
+                        this.WriteToClient(result);
                         //this.WriteToClient(result, 1);
                     }
                 }
@@ -166,101 +155,44 @@ namespace Logs.Server
 
             LogMessage l = new LogMessage(e.Message, e.Status);
             String logObj = l.ToJSON();
-            this.WriteToClient(logObj, 2);
+            this.WriteToClient(logObj);
         }
 
-        private void WriteToClient(string message, int clientType)
+        private void WriteToClient(string message)
         {
           //  System.Diagnostics.Debugger.Launch();
-            Task task = new Task(() =>
-            {
+         //   Task task = new Task(() =>
+          //  {
+                bool hasValue;
+                BinaryWriter writer;
                 Console.WriteLine(message);
-                if (clientType == 1)
+                foreach(TcpClient c in this.Clients)
                 {
-                    mut.WaitOne();
-                    //this.log.Log("sending message to seetings client," + message, MessageTypeEnum.INFO);
-                    foreach (TcpClient client in this.settingsClients)
+                    hasValue = myClients.TryGetValue(c, out NetworkStream s);
+                    if (hasValue && s != null)
                     {
-
-                        //System.Diagnostics.Debugger.Launch();
-                        //stream = client.GetStream();
-                        BinaryWriter writer;
-                        bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
-                        if (hasValue && stream != null)
+                        hasValue = writerDictionary.TryGetValue(c, out BinaryWriter w);
+                        if (!hasValue)
                         {
-                            hasValue = writerDictionary.TryGetValue(client, out BinaryWriter w);
-                            if (!hasValue)
-                            {
-                                writer = new BinaryWriter(stream);
-                                writerDictionary.Add(client, writer);
-                            }
-                            else
-                            {
-                                writer = w;
-                            }
-                            try
-                            {
-                                //  writer = new BinaryWriter(stream);
-                                writer.Write(message);
-                                writer.Flush();
-                                // writer.Flush();
-                                //writer.Close();
-                                //Task.Delay(1000);
-                            }
-                            catch (Exception e)
-                            {
-                                this.log.Log("trying to send message to settings client," +
-                                    " got exception\n message is: " + message + " exception is: " + e.ToString()
-                                    + " stream is: " + stream.ToString(),
-                                    MessageTypeEnum.FAIL);
-                            }
+                            
+                            writer = new BinaryWriter(c.GetStream());
+                            writerDictionary.Add(c, writer);
                         }
-                    }
-                    mut.ReleaseMutex();
-                }
-                else
-                {
-
-                    mut.WaitOne();
-                    //this.log.Log("sending message to logs client," + message, MessageTypeEnum.INFO);
-                    foreach (TcpClient client in this.logClients)
-                    {
-                        bool hasValue = myClients.TryGetValue(client, out NetworkStream stream);
-                        if (hasValue)
+                        else
                         {
-                            BinaryWriter writer;
-                             hasValue = writerDictionary.TryGetValue(client, out BinaryWriter w);
-                            if (!hasValue)
-                            {
-                                writer = new BinaryWriter(stream);
-                                writerDictionary.Add(client, writer);
-                            }
-                            else
-                            {
-                                writer = w;
-                            }
-                            try
-                            {
-                                // writer = new BinaryWriter(stream);
-                                writer.Write(message);
-                                //writer.Flush();
-                                //writer.Close();
-                                // Task.Delay(1000);
-                            }
-                            catch (Exception e)
-                            {
-                                this.log.Log("trying to send message to log client," +
-                                    " got exception\n message is: " + message + " exception is: " + e.ToString()
-                                     + " stream is: " + stream.ToString(),
-                                    MessageTypeEnum.FAIL);
-                            }
+                            writer = w;
                         }
+                        mut.WaitOne();
+                        writer.Write(message);
+                        mut.ReleaseMutex();
                     }
-                    mut.ReleaseMutex();
                 }
-            });
-            task.Start();
+                
+           // });
+           // task.Start();
             //task.Wait();
         }
     }
 }
+
+
