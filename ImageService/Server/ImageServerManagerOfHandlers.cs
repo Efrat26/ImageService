@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Logs.Server
 {
-    //a class that is responsible of the the handlers
+    //a class that is responsible of the the handlers (enroll them to the events, etc)
     public class ImageServerManagerOfHandlers : IManagerOfHandlers
     {
         public event EventHandler<CommandRecievedEventArgs> CommandRecieved;
@@ -22,6 +22,11 @@ namespace Logs.Server
         /// a list with handlers
         /// </summary>
         private List<IDirectoryHandler> handler;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IManagerOfHandlers"/> class.
+        /// </summary>
+        /// <param name="l">The logging service.</param>
+        /// <param name="c">The controller.</param>
         public ImageServerManagerOfHandlers(ILoggingService l, IImageController c)
         {
             this.log = l;
@@ -53,6 +58,11 @@ namespace Logs.Server
             //register the handler to the event of command recieved 
             this.CommandRecieved += this.handler.Last().OnCommand;
         }
+        /// <summary>
+        /// Called when a directory closes.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="DirectoryCloseEventArgs"/> instance containing the event data.</param>
         public void OnCloseDirectory(object sender, DirectoryCloseEventArgs e)
         {
             //System.Diagnostics.Debugger.Launch();

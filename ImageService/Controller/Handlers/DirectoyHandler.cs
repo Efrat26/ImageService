@@ -4,6 +4,7 @@ using Logs.ImageService.Logging.Modal;
 using Logs.Modal.Event;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -121,8 +122,15 @@ namespace Logs.Controller.Handlers
                 this.dirWatcher.Changed -= this.OnNewFile;
                 try
                 {
+                   // System.Diagnostics.Debugger.Launch();
                     this.dirWatcher.EnableRaisingEvents = false;
                     this.dirWatcher.Dispose();
+                    string oldValue = ConfigurationManager.AppSettings["Handler"];
+                    string newValue = oldValue.Replace(e.RequestDirPath+";", "");
+                    this.logging.Log("removing from configuration value handler, new value is: " + newValue,
+                        MessageTypeEnum.INFO);
+                    this.UpdateConfiguration("Handler", newValue, "App.config");
+                    string b = ConfigurationManager.AppSettings["Handler"];
                 }
                 catch (Exception)
                 {
@@ -181,6 +189,25 @@ namespace Logs.Controller.Handlers
                 }
 
             }
+        }
+        /// <summary>
+        /// Updates the app config file.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns></returns>
+        public String UpdateConfiguration(string key, string value, string fileName)
+        {
+            System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            //var configFile = ConfigurationManager.OpenExeConfiguration(fileName);
+            config.AppSettings.Settings[key].Value = value;
+            config.AppSettings.SectionInformation.ForceSave = true;
+            config.Save(ConfigurationSaveMode.Modified);
+            //config.Save();
+            ConfigurationManager.RefreshSection("appSettings");
+           // System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            return ResultMessgeEnum.Success.ToString();
         }
     }
 }

@@ -324,6 +324,10 @@ namespace Logs.Modal
             //file is not locked
             return false;
         }
+        /// <summary>
+        /// Gets the appconfig as json.
+        /// </summary>
+        /// <returns>appconfig as json string</returns>
         public String GetAppconfig()
         {
             ImageServiceAppConfigItem configuration;
@@ -338,22 +342,6 @@ namespace Logs.Modal
         public String LogCommand()
         {
             return null;
-        }
-       public String UpdateConfiguration(string[] args)
-        {
-            // Open App.Config of executable
-            System.Configuration.Configuration config =
-              ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            if (!args[0].Equals("handlers"))
-            {
-                // Add an Application Setting.
-                config.AppSettings.Settings.Add(args[0], args[1]);
-                // Save the configuration file.
-                config.Save(ConfigurationSaveMode.Modified, true);
-                // Force a reload of a changed section.
-                ConfigurationManager.RefreshSection("appSettings");
-            }
-            return ResultMessgeEnum.Success.ToString();
         }
     }
 }

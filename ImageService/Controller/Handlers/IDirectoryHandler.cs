@@ -39,5 +39,13 @@ namespace Logs.Controller.Handlers
         /// <param name="e">The <see cref="FileSystemEventArgs"/> instance containing the event data.</param>
         void OnNewFile(object sender, FileSystemEventArgs e);
         String FullPath { get; set; }
+        /// <summary>
+        /// Updates the app config file.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="fileName">Name of the file.</param>
+        /// <returns></returns>
+        String UpdateConfiguration(string key, string value, string fileName);
     }
 }
