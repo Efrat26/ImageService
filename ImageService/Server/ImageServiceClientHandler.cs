@@ -32,7 +32,7 @@ namespace Logs.Server
         /// <summary>
         /// The log messages
         /// </summary>
-        private List<LogMessage> logMessages;
+        private List<String> logMessages;
         /// <summary>
         /// Occurs when command recieved.
         /// </summary>
@@ -75,7 +75,7 @@ namespace Logs.Server
             this.handler = new ImageServerManagerOfHandlers(l, c);
             this.CloseCommand += this.handler.OnCloseDirectory;
             this.CommandRecieved += this.handler.OnCommandRecieved;
-            this.logMessages = new List<LogMessage>();
+            this.logMessages = new List<String>();
             this.Clients = new List<TcpClient>();
             //this.settingsClients = new List<TcpClient>();
         }
@@ -90,12 +90,8 @@ namespace Logs.Server
             //bool settingClient = true;
             if (!ClientStreamDictionary.ContainsKey(client))
             {
-                //System.Diagnostics.Debugger.Launch();
+               // System.Diagnostics.Debugger.Launch();
                 ClientStreamDictionary.Add(client, client.GetStream());
-                for (int i = 0; i < this.logMessages.Count; ++i)
-                {
-                    this.WriteToClient(this.logMessages[i].ToJSON());
-                }
             }
             BinaryReader reader;
             bool stop = false;
@@ -135,6 +131,14 @@ namespace Logs.Server
                         try
                         {
                             commandNum = Int32.Parse(c.ToString());
+                            if (commandNum==(int)CommandEnum.GetConfigCommand)
+                            {
+                                for (int i = 0; i < this.logMessages.Count; ++i)
+                                {
+                                    //System.Diagnostics.Debugger.Launch();
+                                    this.WriteToClient(this.logMessages[i]);
+                                }
+                            }
                             if (commandNum == (int)CommandEnum.CloseHandler)
                             {
                                 //System.Diagnostics.Debugger.Launch();
@@ -211,13 +215,12 @@ namespace Logs.Server
         /// <param name="e">The <see cref="T:Logs.ImageService.Logging.Modal.MessageRecievedEventArgs" /> instance containing the event data.</param>
         public void OnLogMessageRecieved(object sender, MessageRecievedEventArgs e)
         {
-            this.logMessages.Add(new LogMessage(e.Message, e.Status));
             //write to the client
             //System.Diagnostics.Debugger.Launch();
-
             LogMessage l = new LogMessage(e.Message, e.Status);
             String logObj = l.ToJSON();
-            this.WriteToClient(logObj);
+            this.logMessages.Add(logObj);
+                this.WriteToClient(logObj);
         }
         /// <summary>
         /// Writes to client a message.
