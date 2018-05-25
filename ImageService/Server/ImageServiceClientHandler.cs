@@ -102,7 +102,7 @@ namespace Logs.Server
 
 
                     // writer = new BinaryWriter(stream);
-                    int commandNum;
+                    int commandNum = 0;
                     bool res;
                     String result = null;
 
@@ -150,6 +150,11 @@ namespace Logs.Server
                                 //System.Diagnostics.Debugger.Launch();
                                 res = true;
                                 result = ResultMessgeEnum.Success.ToString();
+                                this.WriteToClient(result);
+                                Task.Delay(100);
+                                this.WriteToClient(handlerJObject);
+                                
+                               // Task.Delay(100);
 
                             }
                             else if (commandNum == (int)CommandEnum.LogCommand)
@@ -172,8 +177,8 @@ namespace Logs.Server
 
 
                         this.WriteToClient(result);
-                        //this.WriteToClient(result, 1);
-                    }
+                            //this.WriteToClient(result, 1);
+                        }
                 }
             }).Start();
         }

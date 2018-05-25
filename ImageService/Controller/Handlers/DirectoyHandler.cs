@@ -32,6 +32,8 @@ namespace Logs.Controller.Handlers
         /// The Path of directory
         /// </summary>
         private string path;
+        //list of handlers
+        private List<String> handlers;
         #endregion
         // The Event That Notifies that the Directory is being closed
         public event EventHandler<DirectoryCloseEventArgs> DirectoryClose;
@@ -52,6 +54,17 @@ namespace Logs.Controller.Handlers
             //this.logging.Log("Hello frm handler", ImageService.Logging.Modal.MessageTypeEnum.INFO);
             this.InitializeWatcher();
             this.DirectoryClose += this.controller.OnCloseOfService;
+            this.handlers = new List<String>();
+            //create the handler and sign the onClose method to the event
+            string folderToListen = ConfigurationManager.AppSettings.Get("Handler");
+            string[] folders = folderToListen.Split(';');
+            //create handlers for each folder:
+            foreach (string folder in folders)
+            {
+                this.handlers.Add(folder);
+            }
+
+
         }
         /// <summary>
         /// Initializes the watcher - signs to the OnCreated event and enable rising events
@@ -125,12 +138,29 @@ namespace Logs.Controller.Handlers
                    // System.Diagnostics.Debugger.Launch();
                     this.dirWatcher.EnableRaisingEvents = false;
                     this.dirWatcher.Dispose();
+                    //System.Diagnostics.Debugger.Launch();
+                    if (this.handlers.Contains(e.RequestDirPath)) {
+                        string newValue;
                     string oldValue = ConfigurationManager.AppSettings["Handler"];
-                    string newValue = oldValue.Replace(e.RequestDirPath+";", "");
+                        //the last element doesn't have a semi-colon after it
+                        if (this.handlers.IndexOf(e.RequestDirPath) != this.handlers.Count - 1)
+                        {
+                            newValue = oldValue.Replace(e.RequestDirPath + ";", "");
+                        }
+                        else
+                        {
+                            newValue = oldValue.Replace(";"+e.RequestDirPath, "");
+                        }
                     this.logging.Log("removing from configuration value handler, new value is: " + newValue,
                         MessageTypeEnum.INFO);
                     this.UpdateConfiguration("Handler", newValue, "App.config");
                     string b = ConfigurationManager.AppSettings["Handler"];
+                    }
+                    else
+                    {
+                        this.logging.Log("handler wasn't found, handler: " + e.RequestDirPath,
+                        MessageTypeEnum.WARNING);
+                    }
                 }
                 catch (Exception)
                 {
