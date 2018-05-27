@@ -10,10 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Logs.Controller.Handlers;
 
 namespace Logs.Controller.Handlers
 {
-    class DirectoyHandler : IDirectoryHandler
+    public class DirectoyHandler : Infrastructure.IDirectoryHandler
     {
         #region Members        
         /// <summary>
