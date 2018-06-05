@@ -144,9 +144,17 @@ namespace Logs.Modal
                 return res;
             }
             //create a thumbnail copy
-            string resultThumbnailCopy =
+            Task <String>t1 = new Task<String>(() =>
+            {
+                Task.Delay(2000);
+                string resultThumbnailCopy =
                 this.CreateThumbnailCopy(destFile, Path.GetFileName(destFile), year, month);
-            if (resultThumbnailCopy.Equals(ResultMessgeEnum.Success.ToString()))
+                return resultThumbnailCopy;
+            });
+            t1.Start();
+            t1.Wait();
+            String task_res = t1.Result;
+            if (task_res.Equals(ResultMessgeEnum.Success.ToString()))
             {
                 result = true;
             }
@@ -154,7 +162,7 @@ namespace Logs.Modal
             {
                 result = false;
             } 
-            return resultThumbnailCopy;
+            return task_res;
         }
         /// <summary>
         /// Moves the file from source folder to target folder.
@@ -200,18 +208,27 @@ namespace Logs.Modal
         {
             try
             {
+                // System.Diagnostics.Debugger.Launch();
+                System.Threading.Thread.Sleep(2000);
+                this.log.Log("entered method",ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 Image image = Image.FromFile(path);
+                this.log.Log("after Image.FromFile", ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 Image thumb = image.GetThumbnailImage(this.thumbnailSize, this.thumbnailSize, () => false, IntPtr.Zero);
+                this.log.Log("after get tumb", ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 string thubnail_path = this.thumbnailpath + "\\\\" + year + "\\\\" + month;
+                this.log.Log("after thumb_path", ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 if (!Directory.Exists(thubnail_path))
                 {
                     System.IO.Directory.CreateDirectory(thubnail_path);//create only if not exist
                 }
+                this.log.Log("after create directory", ImageService.Logging.Modal.MessageTypeEnum.INFO);
                 thumb.Save(thubnail_path + "\\\\" + fileName);
+                this.log.Log("after save", ImageService.Logging.Modal.MessageTypeEnum.INFO);
             }
             catch (Exception e)
             {
-                this.log.Log("error occured while creating thumbnail, error is: " + e.Message,
+                
+                this.log.Log("error occured while creating thumbnail, error is: " + e.Message.ToString(),
                     ImageService.Logging.Modal.MessageTypeEnum.FAIL);
                 return e.ToString();
             }
