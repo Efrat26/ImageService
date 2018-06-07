@@ -129,7 +129,7 @@ namespace ImageService.Server
                         {
                             Console.WriteLine("Got new connection");
                             this.logging.Log("Got new connection", MessageTypeEnum.INFO);
-                            //System.Diagnostics.Debugger.Launch();
+                            System.Diagnostics.Debugger.Launch();
                             // if (!client.Connected) { client.Connect(ep); }
                             Task t = new Task(() =>
                             {

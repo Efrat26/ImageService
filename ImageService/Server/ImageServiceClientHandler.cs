@@ -120,7 +120,15 @@ namespace Logs.Server
                         {
                             reader = r;
                         }
-                        string commandLine = reader.ReadString();
+                        string commandLine = null;
+                        try
+                        {
+                            commandLine = reader.ReadString();
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
 
                         Task.Delay(1000);
                         // Task.Delay(4000);
@@ -131,6 +139,7 @@ namespace Logs.Server
                         try
                         {
                             commandNum = Int32.Parse(c.ToString());
+                            /*
                             if (commandNum==(int)CommandEnum.GetConfigCommand)
                             {
                                 for (int i = 0; i < this.logMessages.Count; ++i)
@@ -139,6 +148,7 @@ namespace Logs.Server
                                     this.WriteToClient(this.logMessages[i]);
                                 }
                             }
+                            */
                             if (commandNum == (int)CommandEnum.CloseHandler)
                             {
                                 //System.Diagnostics.Debugger.Launch();
@@ -159,6 +169,11 @@ namespace Logs.Server
                             }
                             else if (commandNum == (int)CommandEnum.LogCommand)
                             {
+                                for (int i = 0; i < this.logMessages.Count; ++i)
+                                {
+                                    //System.Diagnostics.Debugger.Launch();
+                                    this.WriteToClient(this.logMessages[i]);
+                                }
                                 res = true;
                                 result = ResultMessgeEnum.Success.ToString();
                             }
@@ -253,7 +268,11 @@ namespace Logs.Server
                         writer = w;
                     }
                     mut.WaitOne();
-                    writer.Write(message);
+                    try
+                    {
+                        writer.Write(message);
+                    }
+                    catch (Exception) { }
                     mut.ReleaseMutex();
                 }
             }
