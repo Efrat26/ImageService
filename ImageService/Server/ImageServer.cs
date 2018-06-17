@@ -51,11 +51,12 @@ namespace ImageService.Server
         private String ip;
         private TcpListener listener;
         private IClientHandler ch;
+        private int imagePort;
         #endregion
         #region Properties 
         public int Port { get { return this.port; } set { this.port = value; } }
         public String IP { get { return this.ip; } set { this.ip = value; } }
-        public ILoggingService Log { get { return this.logging;} set {this.logging = value; } }
+        public ILoggingService Log { get { return this.logging; } set { this.logging = value; } }
         #endregion
         /// <summary>
         /// Occurs when a command recieved.
@@ -69,8 +70,8 @@ namespace ImageService.Server
         /// Occurs when a log message recieved.
         /// </summary>
         public event EventHandler<MessageRecievedEventArgs> LogMessageRecieved;
-       
-        
+
+
         /// <summary>
         /// Initializes a new instance of the class.
         /// </summary>
@@ -79,6 +80,7 @@ namespace ImageService.Server
         {
             this.Port = p;
             this.IP = ip;
+            imagePort = Communication.CommunicationDetails.port_images;
             System.Net.ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
         }
 
@@ -86,12 +88,12 @@ namespace ImageService.Server
         {
             add
             {
-              //  throw new NotImplementedException();
+                //  throw new NotImplementedException();
             }
 
             remove
             {
-               // throw new NotImplementedException();
+                // throw new NotImplementedException();
             }
         }
 
@@ -111,6 +113,7 @@ namespace ImageService.Server
         //gives it to the client handler
         public void Start()
         {
+            //this.ConnectToImageSocketAndListen();
             List<TcpClient> clients = new List<TcpClient>();
             IPEndPoint ep = new IPEndPoint(IPAddress.Parse(this.IP), this.port);
             listener = new TcpListener(ep);
@@ -129,7 +132,7 @@ namespace ImageService.Server
                         {
                             Console.WriteLine("Got new connection");
                             this.logging.Log("Got new connection", MessageTypeEnum.INFO);
-                            System.Diagnostics.Debugger.Launch();
+                            //System.Diagnostics.Debugger.Launch();
                             // if (!client.Connected) { client.Connect(ep); }
                             Task t = new Task(() =>
                             {
@@ -174,8 +177,61 @@ namespace ImageService.Server
             //start listening
             //System.Diagnostics.Debugger.Launch();
             this.Start();
+            this.ConnectToImageSocketAndListen();
             this.logging.Log("after start command ctor", MessageTypeEnum.INFO);
             //  this.logging.Log("Hello frm server", ImageService.Logging.Modal.MessageTypeEnum.INFO);
+        }
+        public void ConnectToImageSocketAndListen()
+        {
+            //System.Diagnostics.Debugger.Launch();
+            List<TcpClient> imageClients = new List<TcpClient>();
+            IPEndPoint ep = new IPEndPoint(IPAddress.Any,
+                this.imagePort);
+
+            TcpListener imageListener = new TcpListener(ep);
+            //TcpListener imageListener = new TcpListener(ep);
+           
+           imageListener.Start();
+            this.logging.Log("listening on port: " + this.imagePort + " and in ip: "+ Communication.CommunicationDetails.IP
+                , MessageTypeEnum.INFO);
+            Console.WriteLine("Waiting for connections in image port...");
+          Boolean stop = false;
+
+          Task task = new Task(() =>
+          {
+              while (!stop)
+              {
+                  try
+                  {
+                      TcpClient client = imageListener.AcceptTcpClient();
+                      //System.Diagnostics.Debugger.Launch();
+                      if (!imageClients.Contains(client))
+                      {
+                          Console.WriteLine("Got new connection in image port");
+                          this.logging.Log("Got new connection in image port", MessageTypeEnum.INFO);
+                          //System.Diagnostics.Debugger.Launch();
+                          // if (!client.Connected) { client.Connect(ep); 
+                          //
+                          /*
+                          Task t = new Task(() =>
+                          {
+                              ch.HandleClient(client);
+                          }); t.Start();
+                          //
+                          */
+
+                      }
+                  }
+                  catch (SocketException e)
+                  {
+                      this.logging.Log("Got socket exception in image port: "+e.Message, MessageTypeEnum.INFO);
+                      break; }
+              }
+              this.logging.Log("Server stopped in image port", MessageTypeEnum.INFO);
+          });
+          task.Start();
+  
+         this.logging.Log("after start listening in image port", MessageTypeEnum.INFO);
         }
     }
 }
