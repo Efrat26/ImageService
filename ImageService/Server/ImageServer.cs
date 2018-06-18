@@ -51,6 +51,7 @@ namespace ImageService.Server
         private String ip;
         private TcpListener listener;
         private IClientHandler ch;
+        private IClientHandler imgClientHandler;
         private int imagePort;
         #endregion
         #region Properties 
@@ -183,6 +184,7 @@ namespace ImageService.Server
         }
         public void ConnectToImageSocketAndListen()
         {
+            this.imgClientHandler = new ClientHandlerForImages();
             //System.Diagnostics.Debugger.Launch();
             List<TcpClient> imageClients = new List<TcpClient>();
             IPEndPoint ep = new IPEndPoint(IPAddress.Any,
@@ -209,16 +211,10 @@ namespace ImageService.Server
                       {
                           Console.WriteLine("Got new connection in image port");
                           this.logging.Log("Got new connection in image port", MessageTypeEnum.INFO);
-                          //System.Diagnostics.Debugger.Launch();
-                          // if (!client.Connected) { client.Connect(ep); 
-                          //
-                          /*
                           Task t = new Task(() =>
                           {
-                              ch.HandleClient(client);
+                              this.imgClientHandler.HandleClient(client);
                           }); t.Start();
-                          //
-                          */
 
                       }
                   }
