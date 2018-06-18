@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -55,22 +56,41 @@ namespace ImageService.Server
             {
                 stream = c.GetStream();
                 reader = new BinaryReader(stream);
+
                 while (!stop)
                 {
-                    byte[] img = null;
+
                     //int counter = 0;
                     try
                     {
-                        numOfBytesAsString = reader.ReadString();
-                        if (numOfBytesAsString != null && numOfBytesAsString != "")
-                        {
-                            System.Diagnostics.Debugger.Launch();
-                            numOfBytes = Int32.Parse(numOfBytesAsString);
-                            img = reader.ReadBytes(numOfBytes);
-                           // System.Diagnostics.Debugger.Launch();
+                        string b = reader.ReadString();
 
-                            Image x = (Bitmap)((new ImageConverter()).ConvertFrom(img));
+                        if (b.Equals("") || b == null || b.Equals("end"))
+                        {
+                            continue;
                         }
+                        else if (b.StartsWith("begin"))
+                        {
+                            numOfBytes = Int32.Parse(b.Substring(5, b.Length - 5));
+                            
+                            sbyte[] img = new sbyte[numOfBytes];
+                            for (int i = 0; i < numOfBytes; ++i)
+                            {
+                                img[i] = reader.ReadSByte();
+                            }
+                            System.Diagnostics.Debugger.Launch();
+                            if (this.handlers != null && this.handlers.Count > 0)
+                            {
+                                using (Image image = Image.FromStream(new MemoryStream((byte[])(Array)img)))
+                                {
+                                    String path = handlers[0] + "\\output.jpg";
+                                    image.Save(path, ImageFormat.Jpeg);  // Or Png
+                                }
+                            }
+                            // Image x = (Bitmap)((new ImageConverter()).ConvertFrom(img));
+                        }
+
+
                     }
                     catch (Exception e)
 
@@ -108,6 +128,31 @@ namespace ImageService.Server
             {
                 System.IO.Directory.Move(Directory.GetCurrentDirectory(),handlers[0]);
             }
+        }
+        protected virtual bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
         }
     }
 }
