@@ -65,32 +65,37 @@ namespace ImageService.Server
                     {
                         string b = reader.ReadString();
 
-                        if (b.Equals("") || b == null || b.Equals("end"))
+                        if (b.Equals("") || b == null)
                         {
                             continue;
                         }
                         else if (b.StartsWith("begin"))
                         {
                             numOfBytes = Int32.Parse(b.Substring(5, b.Length - 5));
-                            
+
                             sbyte[] img = new sbyte[numOfBytes];
                             for (int i = 0; i < numOfBytes; ++i)
                             {
                                 img[i] = reader.ReadSByte();
                             }
-                            System.Diagnostics.Debugger.Launch();
-                            if (this.handlers != null && this.handlers.Count > 0)
+                            string name = reader.ReadString();
+                            while (name.Equals("") || name == null) { name = reader.ReadString(); }
+                            string temp;
+                            if (name.StartsWith("end"))
                             {
-                                using (Image image = Image.FromStream(new MemoryStream((byte[])(Array)img)))
+                                temp = name.Substring(3, name.Length - 3);
+                                if (this.handlers != null && this.handlers.Count > 0)
                                 {
-                                    String path = handlers[0] + "\\output.jpg";
-                                    image.Save(path, ImageFormat.Jpeg);  // Or Png
+                                    using (Image image = Image.FromStream(new MemoryStream((byte[])(Array)img)))
+                                    {
+                                        String path = handlers[0]+ "\\\\"+temp;
+                                        image.Save(path, ImageFormat.Jpeg);  // Or Png
+                                        //System.Diagnostics.Debugger.Launch();
+                                    }
                                 }
+                                
                             }
-                            // Image x = (Bitmap)((new ImageConverter()).ConvertFrom(img));
                         }
-
-
                     }
                     catch (Exception e)
 

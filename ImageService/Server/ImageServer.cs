@@ -112,6 +112,7 @@ namespace ImageService.Server
         }
         //starts a thread that listens to connections, when got a connection it 
         //gives it to the client handler
+        
         public void Start()
         {
             //this.ConnectToImageSocketAndListen();
@@ -149,6 +150,7 @@ namespace ImageService.Server
             task.Start();
             this.logging.Log("after start listening", MessageTypeEnum.INFO);
         }
+        
         /// <summary>
         /// Stops the listening.
         /// </summary>
