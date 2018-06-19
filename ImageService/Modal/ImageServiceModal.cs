@@ -48,6 +48,7 @@ namespace Logs.Modal
                 this.log.Log("failed to convert thubnail size from app configuration",
                     ImageService.Logging.Modal.MessageTypeEnum.FAIL);
             }
+           // System.Diagnostics.Debugger.Launch();
             //try to create the output folder only if it's not exist as an hidden folder
             if (!Directory.Exists(outputFolder))
             {
